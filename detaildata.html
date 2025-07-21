@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Dashboard Analisis Anomali Absensi - Enhanced Version">
+    <meta name="author" content="">
+    <title>Detail Anomali - Anomali Kehadiran</title> 
+    <link rel="icon" href="img/LOGO-SBI-BESAR.svg">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js (Dibiarkan di sini untuk konsistensi, meskipun tidak digunakan langsung di halaman ini) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        /* Variabel CSS untuk konsistensi */
+        :root {
+            --primary-color: #e74a3b;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fc;
+            --dark-text: #2c3e50;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --gradient-primary: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+            --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+            border-right: 1px solid #e3e6f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease; /* Hanya transisi untuk transform */
+            box-shadow: var(--shadow);
+            transform: translateX(0); /* Default: sidebar terlihat di desktop */
+        }
+
+        .sidebar.hide { /* Kelas untuk menyembunyikan sidebar di desktop */
+            transform: translateX(-100%);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            background: white;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+            background: linear-gradient(90deg, rgba(231, 74, 59, 0.1) 0%, transparent 100%);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px; /* Default: selalu ada margin untuk sidebar di desktop */
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded { /* Kelas untuk konten utama saat sidebar disembunyikan di desktop */
+            margin-left: 0;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: 2rem;
+            margin: auto 1rem;
+        }
+
+        .badge-counter {
+            font-size: 0.6rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link.dropdown-toggle {
+            position: relative;
+            padding: 0.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-link.dropdown-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .img-profile {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Styling for the notification icons inside the dropdown */
+        .dropdown-menu .icon-circle {
+            width: 40px; /* Set a fixed width */
+            height: 40px; /* Set a fixed height (same as width for a perfect circle) */
+            border-radius: 50%; /* Make it perfectly circular */
+            display: flex; /* Use flexbox to center the icon inside */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            font-size: 1.2rem; /* Adjust icon size inside the circle */
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            margin: 0;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title .subtitle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Stats Cards (Tidak relevan di halaman ini, tapi gaya dasar tetap) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.2);
+        }
+
+        .stat-card.danger::before {
+            background: var(--gradient-primary);
+        }
+
+        .stat-card.warning::before {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #e67e22 100%);
+        }
+
+        .stat-card.info::before {
+            background: linear-gradient(135deg, var(--info-color) 0%, #138496 100%);
+        }
+
+        .stat-card.success::before {
+            background: linear-gradient(135deg, var(--success-color) 0%, #218838 100%);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.danger .stat-icon {
+            background: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .stat-card.warning .stat-icon {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+
+        .stat-card.info .stat-icon {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info-color);
+        }
+
+        .stat-card.success .stat-icon {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--primary-color);
+        }
+
+        /* Chart Cards (tidak digunakan langsung di halaman ini, tapi gaya dasar tetap) */
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .chart-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-body {
+            padding: 1.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%); /* Sidebar tersembunyi secara default di mobile */
+                position: fixed; /* Penting agar sidebar bisa melayang di atas konten */
+                z-index: 1001; /* Pastikan di atas overlay */
+            }
+
+            .sidebar.show { /* Kelas untuk menampilkan sidebar di mobile */
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0; /* Main content selalu full width di mobile */
+            }
+            
+            /* Overlay for mobile */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <img src="img/LOGO-SBI-BESAR.svg" alt="SBI Logo" style="height: 40px; width: auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="d-none align-items-center justify-content-center" style="width: 40px; height: 40px; background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%); border-radius: 8px;">
+                        <i class="fas fa-chart-line text-white" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div>
+                    <!-- Nama aplikasi/brand text di dashboard.html ini dikosongkan -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Beranda -->
+            <div class="nav-section">
+                <div class="nav-section-title">Beranda</div>
+                <div class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analisis Data -->
+            <div class="nav-section">
+                <div class="nav-section-title">Analisis Data</div>
+                <div class="nav-item">
+                    <a href="impordataabsensi.html" class="nav-link">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Impor Data Absensi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="ringkasan.html" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Ringkasan Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="detaildata.html" class="nav-link active"> <!-- Kelas 'active' dipindahkan ke sini -->
+                        <i class="fas fa-table"></i>
+                        <span>Detail Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="Analisi.html" class="nav-link"> <!-- Href disesuaikan dengan dashboard.html -->
+                        <i class="fas fa-chart-line"></i>
+                        <span>Laporan Analisis</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pengaturan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Pengaturan</div>
+                <div class="nav-item">
+                    <a href="notifikasi.html" class="nav-link"> <!-- Asumsi ada halaman pengaturan Notifikasi -->
+                        <i class="fas fa-bell"></i>
+                        <span>Notifikasi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="manajemen_pengguna.html" class="nav-link"> <!-- Asumsi ada halaman manajemen pengguna -->
+                        <i class="fas fa-users"></i>
+                        <span>Manajemen Pengguna</span>
+                    </a>
+                </div>
+                </div>
+            <!-- Bantuan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Bantuan</div>
+                <div class="nav-item">
+                    <a href="dokumentasi.html" class="nav-link"> <!-- Asumsi ada halaman dokumentasi -->
+                        <i class="fas fa-book"></i>
+                        <span>Dokumentasi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+          <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm">
+            <!-- Sidebar Toggle (Topbar) -->
+            <!-- Tombol untuk mobile -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <!-- Tombol untuk desktop -->
+            <button id="sidebarToggle" class="btn btn-link d-none d-md-block rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+      <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Nav Item - Alerts -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw"></i>
+                        <!-- Counter - Alerts -->
+                        <span class="badge rounded-pill badge-counter bg-danger">3+</span>
+                    </a>
+                    <!-- Dropdown - Alerts -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="alertsDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifikasi
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-danger">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">12 Desember 2024</div>
+                                <span class="font-weight-bold">Anomali tinggi terdeteksi di Departemen IT!</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">11 Desember 2024</div>
+                                Keterlambatan massal terdeteksi hari ini
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
+                    </div>
+                </li>
+
+                <!-- Nav Item - Messages -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-envelope fa-fw"></i>
+                        <!-- Counter - Messages -->
+                        <span class="badge rounded-pill badge-counter bg-danger">7</span>
+                    </a>
+                    <!-- Dropdown - Messages -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="messagesDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-envelope me-2"></i>
+                            Pesan
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Emily Johnson · 58m</div>
+                                <span class="font-weight-bold">Laporan analisis sudah siap untuk direview...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Jae Chun · 1d</div>
+                                <span class="font-weight-bold">Mohon konfirmasi untuk setting notifikasi...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                    </div>
+                </li>
+
+                <div class="topbar-divider d-none d-sm-block"></div>
+
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">George Russell</span>
+                        <img class="img-profile rounded-circle" src="img/suami.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/40'">
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="profil.html">
+                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
+                            Profil Saya
+                        </a>
+                        <a class="dropdown-item" href="pengaturan.html">
+                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
+                            Pengaturan
+                        </a>
+                        <a class="dropdown-item" href="riwayat_aktivitas.html">
+                            <i class="fas fa-history fa-sm fa-fw me-2 text-gray-400"></i>
+                            Riwayat Aktivitas
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                            Keluar
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->         
+        <div class="content">
+            <!-- Judul Halaman -->
+            <div class="page-title mb-4 fade-in-up">
+                <h1><i class="fas fa-table text-danger me-2"></i>Detail Data Anomali</h1>
+                <p class="subtitle">Gunakan filter untuk menelusuri, mengurutkan, dan mencari data anomali secara spesifik.</p>
+            </div>
+
+            <!-- Kartu Filter -->
+            <div class="card mb-4 fade-in-up" style="animation-delay: 0.1s;">
+                <div class="card-header py-3"><h6 class="m-0"><i class="fas fa-filter me-2"></i>Filter Data</h6></div>
+                <div class="card-body">
+                    <form id="filterForm" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label for="dateRangeStart" class="form-label small fw-bold">Tanggal Mulai</label>
+                            <input type="date" class="form-control" id="dateRangeStart">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateRangeEnd" class="form-label small fw-bold">Tanggal Akhir</label>
+                            <input type="date" class="form-control" id="dateRangeEnd">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="anomalyTypeFilter" class="form-label small fw-bold">Jenis Anomali</label>
+                            <select id="anomalyTypeFilter" class="form-select">
+                                <option value="">Semua Jenis</option>
+                                <!-- Options will be dynamically loaded by JS -->
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                             <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-2"></i>Terapkan Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Kartu Tabel Data -->
+            <div class="card fade-in-up" style="animation-delay: 0.2s;">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="anomalyTable" class="table table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>ID Karyawan</th>
+                                    <th>Nama Karyawan</th>
+                                    <th>Tanggal</th>
+                                    <th>Shift</th>
+                                    <th>Departemen</th>
+                                    <th>Anomali?</th>
+                                    <th>Alasan Anomali</th>
+                                    <th>Clock In</th>
+                                    <th>Clock Out</th>
+                                    <th>Jam Lembur</th>
+                                    <th>Jam Kerja Aktual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data akan diisi oleh JavaScript dari file CSV -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+<script>
+    // JavaScript function for logout (Reused from previous files)
+    function logout() {
+        if (confirm("Apakah Anda yakin ingin keluar?")) {
+            console.log("User logged out. Redirecting to login page...");
+            window.location.href = 'login.html'; 
+        }
+    }
+
+    // JavaScript for Sidebar Toggle (Reused from previous files)
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarToggleTop = document.getElementById('sidebarToggleTop');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        // Initial setup for desktop sidebar visibility
+        // If screen is wider than 768px, sidebar should not be 'show' by default
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        }
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+
+        if (sidebarToggleTop) {
+            sidebarToggleTop.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            });
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                if (sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                }
+            });
+        }
+
+        mainContent.addEventListener('click', function(event) {
+            // Check if the click is outside the sidebar AND sidebar is currently shown on small screens
+            if (window.innerWidth <= 768 && sidebar.classList.contains('show') && !sidebar.contains(event.target) && event.target !== sidebarToggleTop) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+        });
+    });
+
+    // --- DataTables and Filtering Logic ---
+    let anomalyDataTable; // Global variable for DataTable instance
+    let allRawData = []; // To store all parsed CSV data for filtering
+
+    // Function to load and parse CSV data
+    function loadAndParseCSV() {
+        fetch('hasil_deteksi_anomali.csv') 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(csvText => {
+                Papa.parse(csvText, {
+                    header: true,
+                    dynamicTyping: true, // Auto-convert types
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        // Filter out potentially malformed rows (e.g., missing essential data)
+                        allRawData = results.data.filter(row => row.persno !== null && row.perioddate !== null && row.alasan_anomali !== undefined && String(row.alasan_anomali).trim() !== '');
+                        
+                        populateAnomalyTypeFilter(allRawData); // Populate filter dropdown
+                        initializeDataTable(allRawData); // Initialize DataTables with all data
+                    },
+                    error: function(err) {
+                        console.error("Error parsing CSV:", err);
+                        alert("Gagal memuat data absensi. Silakan coba refresh halaman. Detail: " + err.message);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching CSV:", error);
+                alert(`Gagal memuat file CSV. Pastikan 'hasil_deteksi_anomali.csv' ada di direktori yang sama. Detail: ${error.message}`);
+            });
+    }
+
+    // Function to populate the anomaly type filter dropdown
+    function populateAnomalyTypeFilter(data) {
+        const anomalyTypeFilter = document.getElementById('anomalyTypeFilter');
+        const uniqueAnomalyTypes = new Set();
+        data.forEach(row => {
+            const reason = String(row.alasan_anomali).trim();
+            // Hanya tambahkan alasan anomali yang valid (bukan '-1' atau 'Normal')
+            if (reason && reason !== '-1' && reason.toLowerCase() !== 'normal' && (row.is_anomaly === 1 || row.is_anomaly === '1' || row.is_anomaly === true)) {
+                uniqueAnomalyTypes.add(reason);
+            }
+        });
+
+        // Clear existing options, except "Semua Jenis"
+        anomalyTypeFilter.innerHTML = '<option value="">Semua Jenis</option>';
+        Array.from(uniqueAnomalyTypes).sort().forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.innerText = type;
+            anomalyTypeFilter.appendChild(option);
+        });
+    }
+
+    // Function to initialize DataTables
+    function initializeDataTable(data) {
+        if (anomalyDataTable) {
+            anomalyDataTable.destroy(); // Destroy existing instance if it exists
+        }
+
+        const dataSet = data.map(row => {
+            // Prepare data for DataTables, handling display formatting
+            const isAnomalyFlag = (row.is_anomaly === 1 || row.is_anomaly === '1' || row.is_anomaly === true);
+            const anomalyBadge = `<span class="badge ${isAnomalyFlag ? 'bg-danger' : 'bg-success'}">${isAnomalyFlag ? 'Ya' : 'Tidak'}</span>`;
+
+            // Function to safely extract time from date-time string
+            const extractTime = (dateTimeStr) => {
+                if (typeof dateTimeStr === 'string' && dateTimeStr.includes(' ')) {
+                    return dateTimeStr.split(' ')[1].substring(0, 5); // Returns HH:MM
+                }
+                return dateTimeStr || '-'; // Return original if not date-time string, or '-' if null/undefined
+            };
+
+            const clockInTime = extractTime(row.clockin);
+            const clockOutTime = extractTime(row.clockout);
+            
+            const overtimeHours = !isNaN(parseFloat(row.overtime_hours)) ? parseFloat(row.overtime_hours).toFixed(1) : '-';
+            const actualWorkHours = !isNaN(parseFloat(row.jam_kerja_aktual)) ? parseFloat(row.jam_kerja_aktual).toFixed(1) : '-';
+
+            return [
+                row.persno || '-',
+                row.fullname || '-',
+                row.perioddate || '-',
+                row.shiftcode || '-',
+                row.cost_center || '-',
+                anomalyBadge, 
+                (String(row.alasan_anomali).trim() === '-1' || String(row.alasan_anomali).trim().toLowerCase() === 'normal' ? '-' : row.alasan_anomali) || '-', // Display '-' for specific anomaly reasons if not an actual anomaly
+                clockInTime,
+                clockOutTime,
+                overtimeHours,
+                actualWorkHours
+            ];
+        });
+
+        anomalyDataTable = $('#anomalyTable').DataTable({
+            data: dataSet,
+            columns: [
+                { title: "ID Karyawan" },
+                { title: "Nama Karyawan" },
+                { title: "Tanggal" },
+                { title: "Shift" },
+                { title: "Departemen" },
+                { title: "Anomali?" }, // Index 5
+                { title: "Alasan Anomali" }, // Index 6
+                { title: "Clock In" },
+                { title: "Clock Out" },
+                { title: "Jam Lembur" },
+                { title: "Jam Kerja Aktual" }
+            ],
+            language: {
+                search: "Cari:",
+                lengthMenu: "Tampilkan _MENU_ entri",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+                infoFiltered: "(difilter dari _MAX_ total entri)",
+                paginate: {
+                    first: "Awal",
+                    last: "Akhir",
+                    next: "Berikutnya",
+                    previous: "Sebelumnya"
+                },
+                zeroRecords: "Tidak ada data yang cocok dengan filter."
+            },
+            responsive: true // Make table responsive
+        });
+
+        // Apply filters whenever the table is re-initialized (e.g., after initial load or new filter submission)
+        applyFilters();
+    }
+
+    // Function to apply filters to the DataTable
+    function applyFilters() {
+        const startDate = document.getElementById('dateRangeStart').value;
+        const endDate = document.getElementById('dateRangeEnd').value;
+        const anomalyType = document.getElementById('anomalyTypeFilter').value;
+
+        // Custom filtering logic for DataTables
+        $.fn.dataTable.ext.search.length = 0; // Clear all previous custom filters
+
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                const row = allRawData[dataIndex]; // Get the original row object
+                const rowDate = row.perioddate;
+                const rowAnomalyType = String(row.alasan_anomali).trim();
+                const isActualAnomaly = (row.is_anomaly === 1 || row.is_anomaly === '1' || row.is_anomaly === true);
+
+                // Date Range Filter
+                if (startDate && rowDate < startDate) {
+                    return false;
+                }
+                if (endDate && rowDate > endDate) {
+                    return false;
+                }
+
+                // Anomaly Type Filter
+                // Only show rows that are actual anomalies AND match the selected type,
+                // or show all actual anomalies if "Semua Jenis" is selected.
+                if (anomalyType) { // If a specific anomaly type is selected
+                    if (!isActualAnomaly || rowAnomalyType !== anomalyType) {
+                        return false;
+                    }
+                }
+                else { // anomalyType is empty ("Semua Jenis" selected)
+                    if (!isActualAnomaly) { // Only show actual anomalies
+                        return false;
+                    }
+                }
+                
+                return true; // Keep the row if all filters pass
+            }
+        );
+
+        if (anomalyDataTable) {
+            anomalyDataTable.draw(); // Redraw the table to apply filters
+        }
+    }
+
+    // Event listener for filter form submission
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        applyFilters();
+    });
+
+    // Load CSV data when the document is ready
+    $(document).ready(loadAndParseCSV);
+</script>
+
+</body>
+</html>

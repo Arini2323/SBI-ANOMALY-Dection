@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Halaman Laporan Analisis Anomali Kehadiran">
+    <meta name="author" content="">
+    <title>Laporan Analisis - Anomaly Insight</title>
+        <link rel="icon" href="img/LOGO-SBI-BESAR.svg">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #e74a3b;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fc;
+            --dark-text: #2c3e50;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --gradient-primary: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+            --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+            border-right: 1px solid #e3e6f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(0);
+        }
+
+        .sidebar.hide {
+            transform: translateX(-100%);
+        }
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            background: white;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+            background: linear-gradient(90deg, rgba(231, 74, 59, 0.1) 0%, transparent 100%);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            transition: margin-left 0.3s ease;
+            padding: 0;
+        }
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: 2rem;
+            margin: auto 1rem;
+        }
+
+        .badge-counter {
+            font-size: 0.6rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link.dropdown-toggle {
+            position: relative;
+            padding: 0.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-link.dropdown-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .img-profile {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dropdown-menu .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            margin: 0;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title .subtitle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Report Specific Styles */
+        .report-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        .report-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .report-summary-stats .stat-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .report-summary-stats .stat-item:last-child {
+            border-bottom: none;
+        }
+        .report-summary-stats .stat-label {
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+        .report-summary-stats .stat-value {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        .report-summary-stats .stat-value.secondary-color {
+            color: var(--secondary-color);
+        }
+
+        /* Remove iframe styling as it's no longer directly embedded on this page */
+        /* .iframe-chart-wrapper, .iframe-chart-wrapper iframe are no longer needed */
+
+        /* Custom styles for interactive cards */
+        .interactive-card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            padding: 2rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+            width: 300px; /* Fixed width for consistent card size */
+            min-width: 280px; /* Minimum width for smaller screens, allows responsiveness */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center content vertically */
+        }
+
+        .interactive-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            color: var(--primary-color);
+        }
+
+        .interactive-card .card-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: block;
+            line-height: 1;
+        }
+
+        .interactive-card h5 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-text);
+        }
+
+        .interactive-card:hover h5 {
+            color: var(--primary-color);
+        }
+
+        .interactive-card p {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .disabled-card {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .disabled-card:hover {
+            transform: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            color: var(--dark-text);
+        }
+        .disabled-card .card-icon {
+            color: var(--secondary-color) !important;
+        }
+        .disabled-card h5 {
+            color: var(--dark-text) !important;
+        }
+
+        /* Responsive */
+        /* The empty media query rule for .interactive-card has been removed */
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 100%;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar .d-md-none {
+                display: block !important;
+            }
+            .navbar .d-none.d-md-block {
+                display: none !important;
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .interactive-card {
+                flex-basis: 90%; /* Approx 1 card per row on mobile */
+                padding: 1.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <img src="img/LOGO-SBI-BESAR.svg" alt="SBI Logo" style="height: 40px; width: auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="d-none align-items-center justify-content-center" style="width: 40px; height: 40px; background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%); border-radius: 8px;">
+                        <i class="fas fa-chart-line text-white" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div>
+                    <!-- Nama aplikasi/brand text di dashboard.html ini dikosongkan -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Beranda -->
+            <div class="nav-section">
+                <div class="nav-section-title">Beranda</div>
+                <div class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analisis Data -->
+            <div class="nav-section">
+                <div class="nav-section-title">Analisis Data</div>
+                <div class="nav-item">
+                    <a href="impordataabsensi.html" class="nav-link">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Impor Data Absensi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="ringkasan.html" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Ringkasan Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="detaildata.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Detail Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="laporananalisis.html" class="nav-link active">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Laporan Analisis</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pengaturan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Pengaturan</div>
+                <div class="nav-item">
+                    <a href="notifikasi.html" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifikasi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="manajemen_pengguna.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Manajemen Pengguna</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bantuan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Bantuan</div>
+                <div class="nav-item">
+                    <a href="dokumentasi.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Dokumentasi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+          <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm">
+            <!-- Sidebar Toggle (Topbar) -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <button id="sidebarToggle" class="btn btn-link d-none d-md-block rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Nav Item - Alerts -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw"></i>
+                        <!-- Counter - Alerts -->
+                        <span class="badge rounded-pill badge-counter bg-danger">3+</span>
+                    </a>
+                    <!-- Dropdown - Alerts -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="alertsDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifikasi
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-danger">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">12 Desember 2024</div>
+                                <span class="font-weight-bold">Anomali tinggi terdeteksi di Departemen IT!</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">11 Desember 2024</div>
+                                Keterlambatan massal terdeteksi hari ini
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
+                    </div>
+                </li>
+
+                <!-- Nav Item - Messages -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-envelope fa-fw"></i>
+                        <!-- Counter - Messages -->
+                        <span class="badge rounded-pill badge-counter bg-danger">7</span>
+                    </a>
+                    <!-- Dropdown - Messages -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="messagesDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-envelope me-2"></i>
+                            Pesan
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Emily Johnson · 58m</div>
+                                <span class="font-weight-bold">Laporan analisis sudah siap untuk direview...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Jae Chun · 1d</div>
+                                <span class="font-weight-bold">Mohon konfirmasi untuk setting notifikasi...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                    </div>
+                </li>
+
+                <div class="topbar-divider d-none d-sm-block"></div>
+
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">George Russell</span>
+                        <img class="img-profile rounded-circle" src="img/suami.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/40'">
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="profil.html">
+                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
+                            Profil Saya
+                        </a>
+                        <a class="dropdown-item" href="pengaturan.html">
+                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
+                            Pengaturan
+                        </a>
+                        <a class="dropdown-item" href="riwayat_aktivitas.html">
+                            <i class="fas fa-history fa-sm fa-fw me-2 text-gray-400"></i>
+                            Riwayat Aktivitas
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                            Keluar
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+
+        <div class="content">
+            <!-- Judul Halaman -->
+            <div class="page-title mb-4 fade-in-up">
+                <h1><i class="fas fa-chart-line text-danger me-2"></i>Laporan Analisis Anomali</h1>
+                <p class="subtitle">Dapatkan laporan lengkap dan ringkasan temuan anomali dari data absensi.</p>
+            </div>
+
+            <!-- Bagian Ringkasan Laporan -->
+            <div class="report-section fade-in-up" style="animation-delay: 0.1s;">
+                <h3 class="mb-4"><i class="fas fa-file-alt me-2"></i>Ringkasan Analisis</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="report-summary-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Anomali Terdeteksi:</span>
+                                <span class="stat-value" id="reportTotalAnomalies">Memuat...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Jenis Anomali Terbanyak:</span>
+                                <span class="stat-value secondary-color" id="reportMostCommonAnomaly">Memuat...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Departemen Anomali Tertinggi:</span>
+                                <span class="stat-value secondary-color" id="reportTopAnomalyDept">Memuat...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small">
+                            Laporan ini merangkum hasil deteksi anomali dari data absensi yang telah Anda unggah.
+                            Analisis mendalam dilakukan untuk mengidentifikasi pola ketidakhadiran, keterlambatan, atau ketidaksesuaian jam kerja.
+                            Untuk detail lebih lanjut, silakan unduh laporan lengkap di bawah.
+                        </p>
+                        <p class="text-muted small">
+                            *Data diperbarui terakhir pada: <strong id="lastUpdatedDate">Memuat...</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Unduh Laporan -->
+            <div class="report-section fade-in-up" style="animation-delay: 0.2s;">
+                <h3 class="mb-4"><i class="fas fa-download me-2"></i>Unduh Laporan Lengkap</h3>
+                <p class="text-muted mb-4">
+                    Unduh file CSV asli yang berisi semua data absensi beserta hasil deteksi anomali.
+                    Anda dapat menggunakan file ini untuk analisis lebih lanjut dengan alat spreadsheet atau BI.
+                </p>
+                <a href="hasil_deteksi_anomali.csv" download="Laporan_Anomali_Kehadiran_Lengkap.csv" class="btn btn-primary btn-lg">
+                    <i class="fas fa-file-csv me-2"></i>Unduh Laporan CSV
+                </a>
+                <button class="btn btn-outline-secondary btn-lg ms-3" onclick="alert('Fitur ini belum diimplementasikan. Untuk laporan PDF, Anda memerlukan backend server.');">
+                    <i class="fas fa-file-pdf me-2"></i>Unduh Laporan PDF (Segera Hadir)
+                </button>
+            </div>
+
+            <!-- Bagian Visualisasi Data Interaktif -->
+            <div class="report-section fade-in-up" style="animation-delay: 0.3s;">
+                <h3 class="mb-2"><i class="fas fa-chart-pie me-2"></i>Visualisasi Data Interaktif</h3>
+                <p class="text-muted mb-5">
+                    Jelajahi data absensi anomali melalui berbagai sudut pandang. Klik salah satu kartu untuk melihat detail visualisasinya.
+                </p>
+                
+                <div class="d-flex flex-wrap justify-content-center gap-4">
+                  <!-- Card 1: Tren Anomali per Hari -->
+                    <a href="detail_tren_anomali.html" class="interactive-card">
+                        <i class="fas fa-chart-area card-icon"></i>
+                        <h5>Tren Anomali per Hari</h5>
+                        <p>Grafik garis ini menampilkan fluktuasi jumlah anomali yang terdeteksi setiap hari.</p>
+                    </a>
+
+                     <!-- Card 2: Tren Anomali per minggu-->
+                    <a href="detail_jumlah anomali_perminggu.html" class="interactive-card">
+                        <i class="fas fa-chart-area card-icon"></i>
+                        <h5>Tren Anomali per minggu</h5>
+                        <p>Grafik garis ini menampilkan fluktuasi jumlah anomali yang terdeteksi setiap mingguan.</p>
+                    </a>
+
+                     <!-- Card 3: Tren Anomali per bulan -->
+                    <a href="detail_jumlahanomali_perbulan.html" class="interactive-card">
+                        <i class="fas fa-chart-area card-icon"></i>
+                        <h5>Tren Anomali per bulan</h5>
+                        <p>Grafik garis ini menampilkan fluktuasi jumlah anomali yang terdeteksi setiap bulanan.</p>
+                    </a>
+
+
+                    <!-- Card 4: Jumlah Anomali Berdasarkan Jenis -->
+                    <a href="detail_jumlah_anomali_jenis.htm" class="interactive-card">
+                        <i class="fas fa-align-left card-icon"></i>
+                        <h5>Jumlah Anomali Berdasarkan Jenis</h5>
+                        <p>Visualisasi ini menunjukkan distribusi anomali berdasarkan kategorinya (misalnya, Clock-out kosong).</p>
+                    </a>
+
+                    <!-- Card 5: Anomali Berdasarkan Cost Center (Departemen) -->
+                    <a href="detail_anomali_cost_center.html" class="interactive-card">
+                        <i class="fas fa-building card-icon"></i>
+                        <h5>Anomali Berdasarkan Cost Center</h5>
+                        <p>Grafik batang ini mengidentifikasi departemen atau pusat biaya dengan anomali tertinggi.</p>
+                    </a>
+
+                    <!-- Card 6: Karyawan dengan Anomali Tertinggi -->
+                    <a href="detail_karyawan_anomali_tertinggi.html" class="interactive-card">
+                        <i class="fas fa-users card-icon"></i>
+                        <h5>Karyawan dengan Anomali Tertinggi</h5>
+                        <p>Daftar 10 karyawan dengan catatan anomali tertinggi dalam periode yang dianalisis.</p>
+                    </a>
+
+                    <!-- Card 7: Total Jam Lembur berdasarkan Aktivitas -->
+                    <a href="detail_total_jam_lembur.html" class="interactive-card">
+                        <i class="fas fa-hourglass-half card-icon"></i>
+                        <h5>Total Jam Lembur</h5>
+                        <p>Grafik ini menunjukkan akumulasi jam lembur yang tercatat berdasarkan alasan aktivitas.</p>
+                    </a>
+
+                    <!-- Card 8: Jumlah Anomali per Shift -->
+                    <a href="detail_jumlah_anomali_shift.html" class="interactive-card">
+                        <i class="fas fa-calendar-days card-icon"></i>
+                        <h5>Jumlah Anomali per Shift</h5>
+                        <p>Perbandingan jumlah anomali yang terdeteksi di setiap shift kerja (misalnya, AD, MS, AS).</p>
+                    </a>
+
+                    <!-- Card 9: Placeholder for next analysis -->
+                    <a href="analisis_lanjutan.html" class="interactive-card disabled-card">
+                        <i class="fas fa-chart-pie card-icon" style="color: var(--secondary-color);"></i>
+                        <h5>Analisis Lanjutan</h5>
+                        <p>Visualisasi lain akan segera ditambahkan di sini.</p>
+                    </a>
+                </div>
+            </div>   
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
+    <script>
+        // JavaScript function for logout
+        function logout() {
+            if (confirm("Apakah Anda yakin ingin keluar?")) {
+                console.log("User logged out. Redirecting to login page...");
+                window.location.href = 'login.html'; 
+            }
+        }
+
+        // JavaScript for Sidebar Toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggleTop = document.getElementById('sidebarToggleTop');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function adjustLayout() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('hide');
+                    sidebar.classList.remove('show');
+                    mainContent.classList.remove('expanded');
+                    sidebarOverlay.classList.remove('show');
+                } else {
+                    sidebar.classList.remove('hide');
+                    mainContent.classList.remove('expanded');
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                }
+            }
+
+            adjustLayout();
+            window.addEventListener('resize', adjustLayout);
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('hide');
+                    mainContent.classList.toggle('expanded');
+                });
+            }
+
+            if (sidebarToggleTop) {
+                sidebarToggleTop.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                });
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+
+            // --- Laporan Analisis Specific Logic ---
+            let allAnomalyData = []; 
+
+            async function fetchCsvDataForReport() {
+                try {
+                    const response = await fetch('./hasil_deteksi_anomali.csv'); 
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                    }
+                    const text = await response.text();
+
+                    Papa.parse(text, {
+                        header: true,
+                        dynamicTyping: true, 
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            allAnomalyData = results.data.filter(row => 
+                                row.persno !== null && 
+                                row.perioddate !== null && 
+                                row.alasan_anomali !== undefined && 
+                                String(row.alasan_anomali).trim() !== ''
+                            ); 
+                            updateReportSummary(allAnomalyData);
+                        },
+                        error: function(err) {
+                            console.error("Error parsing CSV for report:", err);
+                            document.getElementById('reportTotalAnomalies').innerText = 'Gagal memuat';
+                            document.getElementById('reportMostCommonAnomaly').innerText = 'Gagal memuat';
+                            document.getElementById('reportTopAnomalyDept').innerText = 'Gagal memuat';
+                            document.getElementById('lastUpdatedDate').innerText = 'N/A';
+                            alert("Gagal memuat data laporan. Silakan coba refresh halaman. Detail: " + err.message);
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error fetching CSV for report:", error);
+                    document.getElementById('reportTotalAnomalies').innerText = 'Gagal memuat';
+                    document.getElementById('reportMostCommonAnomaly').innerText = 'Gagal memuat';
+                    document.getElementById('reportTopAnomalyDept').innerText = 'Gagal memuat';
+                    document.getElementById('lastUpdatedDate').innerText = 'N/A';
+                    alert(`Gagal memuat file CSV laporan. Pastikan 'hasil_deteksi_anomali.csv' ada di direktori yang sama. Detail: ${error.message}`);
+                }
+            }
+
+            function updateReportSummary(data) {
+                let totalAnomalies = 0;
+                const anomalyTypeCounts = {};
+                const deptAnomalyCounts = {};
+                
+                let latestDate = null;
+
+                data.forEach(row => {
+                    const isActualAnomaly = (row.is_anomaly === 1 || row.is_anomaly === '1' || row.is_anomaly === true); 
+                    const periodDate = row.perioddate;
+
+                    if (isActualAnomaly) {
+                        totalAnomalies++;
+
+                        const anomalyReason = String(row.alasan_anomali).trim(); 
+                        if (anomalyReason && anomalyReason !== '-1' && anomalyReason.toLowerCase() !== 'normal') {
+                            anomalyTypeCounts[anomalyReason] = (anomalyTypeCounts[anomalyReason] || 0) + 1;
+                        }
+                        
+                        const costCenter = String(row.cost_center).trim();
+                        if (costCenter && costCenter !== '-1') {
+                            deptAnomalyCounts[costCenter] = (deptAnomalyCounts[costCenter] || 0) + 1;
+                        }
+                    }
+
+                    if (periodDate) {
+                        if (!latestDate || new Date(periodDate) > new Date(latestDate)) {
+                            latestDate = periodDate;
+                        }
+                    }
+                });
+
+                const sortedAnomalyTypes = Object.entries(anomalyTypeCounts)
+                    .sort(([, a], [, b]) => b - a); 
+
+                const sortedDeptAnomaly = Object.entries(deptAnomalyCounts)
+                    .sort(([, a], [, b]) => b - a);
+                
+                document.getElementById('reportTotalAnomalies').innerText = totalAnomalies.toLocaleString();
+                document.getElementById('reportMostCommonAnomaly').innerText = sortedAnomalyTypes.length > 0 ? sortedAnomalyTypes[0][0] : "Tidak Ada";
+                document.getElementById('reportTopAnomalyDept').innerText = sortedDeptAnomaly.length > 0 ? sortedDeptAnomaly[0][0] : "Tidak Ada";
+                
+                if (latestDate) {
+                    const dateObj = new Date(latestDate);
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    document.getElementById('lastUpdatedDate').innerText = dateObj.toLocaleDateString('id-ID', options);
+                } else {
+                    document.getElementById('lastUpdatedDate').innerText = 'Tidak Tersedia';
+                }
+            }
+
+            fetchCsvDataForReport();
+        });
+    </script>
+</body>
+</html>

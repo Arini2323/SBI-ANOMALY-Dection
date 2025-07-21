@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Halaman Pengaturan Notifikasi Sistem">
+    <meta name="author" content="">
+    <title>Notifikasi - Anomaly Insight</title>
+         <link rel="icon" href="img/LOGO-SBI-BESAR.svg">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #e74a3b;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fc;
+            --dark-text: #2c3e50;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --gradient-primary: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+            --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+            border-right: 1px solid #e3e6f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease; /* Hanya transisi untuk transform */
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(0); /* Default: sidebar terlihat di desktop */
+        }
+
+        .sidebar.hide { /* Kelas untuk menyembunyikan sidebar di desktop */
+            transform: translateX(-100%);
+        }
+        .sidebar.show { /* Kelas untuk menampilkan sidebar di mobile */
+            transform: translateX(0);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            background: white;
+        }
+        /* Hapus aturan .sidebar.collapsed yang tidak digunakan lagi */
+
+        .sidebar-nav {
+            padding: 1rem 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        /* Hapus aturan .sidebar.collapsed .nav-section-title */
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+            background: linear-gradient(90deg, rgba(231, 74, 59, 0.1) 0%, transparent 100%);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+        /* Hapus aturan .sidebar.collapsed .nav-link i dan span */
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px; /* Default: selalu ada margin untuk sidebar di desktop */
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            transition: margin-left 0.3s ease;
+            padding: 0; /* Menghilangkan padding dari main-content */
+        }
+        .main-content.expanded { /* Kelas untuk konten utama saat sidebar disembunyikan di desktop */
+            margin-left: 0;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: 2rem;
+            margin: auto 1rem;
+        }
+
+        .badge-counter {
+            font-size: 0.6rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link.dropdown-toggle {
+            position: relative;
+            padding: 0.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-link.dropdown-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .img-profile {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Styling for the notification icons inside the dropdown */
+        .dropdown-menu .icon-circle {
+            width: 40px; /* Set a fixed width */
+            height: 40px; /* Set a fixed height (same as width for a perfect circle) */
+            border-radius: 50%; /* Make it perfectly circular */
+            display: flex; /* Use flexbox to center the icon inside */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            font-size: 1.2rem; /* Adjust icon size inside the circle */
+            flex-shrink: 0; /* Pastikan tidak menyusut */
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            margin: 0;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title .subtitle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Notification Settings Specific Styles */
+        .settings-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        .settings-card h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .form-check-label {
+            cursor: pointer;
+        }
+        .form-switch .form-check-input {
+            height: 1.5em;
+            width: 2.5em;
+            cursor: pointer;
+        }
+        .schedule-options {
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            background-color: #fcfcfc;
+        }
+        .schedule-options.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Sidebar tersembunyi secara default di mobile */
+                width: 100%; /* Lebar penuh di mobile untuk overlay */
+            }
+            .sidebar.show {
+                transform: translateX(0); /* Tampilkan sidebar */
+            }
+            .main-content {
+                margin-left: 0; /* Main content selalu full width di mobile */
+            }
+            /* Menyesuaikan tombol toggle di topbar untuk mobile */
+            .navbar .d-md-none {
+                display: block !important;
+            }
+            .navbar .d-none.d-md-block {
+                display: none !important;
+            }
+
+            /* Overlay for mobile */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <img src="img/LOGO-SBI-BESAR.svg" alt="SBI Logo" style="height: 40px; width: auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="d-none align-items-center justify-content-center" style="width: 40px; height: 40px; background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%); border-radius: 8px;">
+                        <i class="fas fa-chart-line text-white" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div>
+                    <!-- Nama aplikasi/brand text di dashboard.html ini dikosongkan -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Beranda -->
+            <div class="nav-section">
+                <div class="nav-section-title">Beranda</div>
+                <div class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analisis Data -->
+            <div class="nav-section">
+                <div class="nav-section-title">Analisis Data</div>
+                <div class="nav-item">
+                    <a href="impordataabsensi.html" class="nav-link">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Impor Data Absensi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="ringkasan.html" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Ringkasan Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="detaildata.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Detail Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="Analisi.html" class="nav-link"> <!-- Diperbaiki hrefnya -->
+                        <i class="fas fa-chart-line"></i>
+                        <span>Laporan Analisis</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pengaturan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Pengaturan</div>
+                <div class="nav-item">
+                    <a href="pengaturan.html" class="nav-link active"> <!-- Link aktif ke halaman Notifikasi (pengaturan.html) -->
+                        <i class="fas fa-bell"></i>
+                        <span>Notifikasi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="manajemen_pengguna.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Manajemen Pengguna</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bantuan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Bantuan</div>
+                <div class="nav-item">
+                    <a href="dokumentasi.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Dokumentasi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+          <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm">
+            <!-- Sidebar Toggle (Topbar) -->
+            <!-- Tombol untuk mobile -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <!-- Tombol untuk desktop -->
+            <button id="sidebarToggle" class="btn btn-link d-none d-md-block rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Nav Item - Alerts -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw"></i>
+                        <!-- Counter - Alerts -->
+                        <span class="badge rounded-pill badge-counter bg-danger">3+</span>
+                    </a>
+                    <!-- Dropdown - Alerts -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="alertsDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifikasi
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-danger">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">12 Desember 2024</div>
+                                <span class="font-weight-bold">Anomali tinggi terdeteksi di Departemen IT!</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">11 Desember 2024</div>
+                                Keterlambatan massal terdeteksi hari ini
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
+                    </div>
+                </li>
+
+                <!-- Nav Item - Messages -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-envelope fa-fw"></i>
+                        <!-- Counter - Messages -->
+                        <span class="badge rounded-pill badge-counter bg-danger">7</span>
+                    </a>
+                    <!-- Dropdown - Messages -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="messagesDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-envelope me-2"></i>
+                            Pesan
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Emily Johnson · 58m</div>
+                                <span class="font-weight-bold">Laporan analisis sudah siap untuk direview...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Jae Chun · 1d</div>
+                                <span class="font-weight-bold">Mohon konfirmasi untuk setting notifikasi...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                    </div>
+                </li>
+
+                <div class="topbar-divider d-none d-sm-block"></div>
+
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">George Russell</span>
+                        <img class="img-profile rounded-circle" src="img/suami.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/40'">
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="profil.html">
+                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
+                            Profil Saya
+                        </a>
+                        <a class="dropdown-item" href="pengaturan.html">
+                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
+                            Pengaturan
+                        </a>
+                        <a class="dropdown-item" href="riwayat_aktivitas.html">
+                            <i class="fas fa-history fa-sm fa-fw me-2 text-gray-400"></i>
+                            Riwayat Aktivitas
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                            Keluar
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+
+        <div class="content">
+            <!-- Judul Halaman -->
+            <div class="page-title mb-4 fade-in-up">
+                <h1><i class="fas fa-bell text-secondary me-2"></i>Notifikasi</h1>
+                <p class="subtitle">Kelola pengaturan notifikasi sistem dan kirim pesan ke Human Capital Support Center.</p>
+            </div>
+
+            <!-- Bagian Kirim Notifikasi Baru -->
+            <div class="card settings-card fade-in-up" style="animation-delay: 0.1s;">
+                <h4><i class="fas fa-paper-plane me-2"></i>Kirim Notifikasi Manual</h4>
+                <form id="manualNotificationForm">
+                    <div class="mb-3">
+                        <label for="notificationRecipient" class="form-label">Penerima Notifikasi</label>
+                        <input type="text" class="form-control" id="notificationRecipient" value="Human Capital Support Center" readonly>
+                        <div class="form-text">Penerima email, WhatsApp, dan Telegram ditentukan di <a href="pengaturan_profil.html">Pengaturan Umum Notifikasi Sistem</a>.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notificationSubject" class="form-label">Subjek/Judul Pesan</label>
+                        <input type="text" class="form-control" id="notificationSubject" placeholder="Contoh: Anomali Absensi Perlu Ditinjau" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notificationMessage" class="form-label">Isi Pesan</label>
+                        <textarea class="form-control" id="notificationMessage" rows="4" placeholder="Detail anomali atau permintaan bantuan..." required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Kirim Melalui Saluran:</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="sendViaEmail" value="email" checked>
+                                <label class="form-check-label" for="sendViaEmail"><i class="fas fa-envelope me-1"></i>Email</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="sendViaWhatsapp" value="whatsapp">
+                                <label class="form-check-label" for="sendViaWhatsapp"><i class="fab fa-whatsapp me-1"></i>WhatsApp</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="sendViaTelegram" value="telegram">
+                                <label class="form-check-label" for="sendViaTelegram"><i class="fab fa-telegram-plane me-1"></i>Telegram</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>Kirim Notifikasi</button>
+                    <div id="manualNotificationStatus" class="mt-3 small"></div>
+                </form>
+            </div>
+
+
+            <!-- Bagian Pengaturan Notifikasi Terjadwal -->
+            <div class="card settings-card fade-in-up" style="animation-delay: 0.2s;">
+                <h4><i class="fas fa-clock me-2"></i>Pengaturan Notifikasi Terjadwal</h4>
+                <p class="text-muted small">Atur jadwal pengiriman laporan ringkasan anomali atau notifikasi berkala.</p>
+
+                <form id="scheduledNotificationForm">
+                    <div class="mb-4">
+                        <label class="form-label">Penerima Notifikasi Terjadwal:</label>
+                        <input type="text" class="form-control" id="scheduledRecipient" value="Human Capital Support Center" readonly>
+                        <div class="form-text">Penerima ditentukan berdasarkan <a href="pengaturan_profil.html">Pengaturan Umum Notifikasi</a>.</div>
+                    </div>
+
+                    <!-- Notifikasi Harian -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="enableDailyNotification" role="switch">
+                            <label class="form-check-label" for="enableDailyNotification">Aktifkan Notifikasi Harian</label>
+                        </div>
+                        <div class="schedule-options" id="dailyOptions">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="dailyTime" class="form-label">Waktu Pengiriman Harian</label>
+                                    <input type="time" class="form-control" id="dailyTime" value="09:00">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dailyContent" class="form-label">Konten Notifikasi Harian</label>
+                                    <select class="form-select" id="dailyContent">
+                                        <option value="summary">Ringkasan Anomali Harian</option>
+                                        <option value="report">Laporan Absensi Singkat</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifikasi Mingguan -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="enableWeeklyNotification" role="switch">
+                            <label class="form-check-label" for="enableWeeklyNotification">Aktifkan Notifikasi Mingguan</label>
+                        </div>
+                        <div class="schedule-options" id="weeklyOptions">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="weeklyDay" class="form-label">Hari Pengiriman</label>
+                                    <select class="form-select" id="weeklyDay">
+                                        <option value="Sunday">Minggu</option>
+                                        <option value="Monday">Senin</option>
+                                        <option value="Tuesday">Selasa</option>
+                                        <option value="Wednesday">Rabu</option>
+                                        <option value="Thursday">Kamis</option>
+                                        <option value="Friday">Jumat</option>
+                                        <option value="Saturday">Sabtu</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="weeklyTime" class="form-label">Waktu Pengiriman</label>
+                                    <input type="time" class="form-control" id="weeklyTime" value="09:00">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="weeklyContent" class="form-label">Konten Notifikasi Mingguan</label>
+                                    <select class="form-select" id="weeklyContent">
+                                        <option value="weekly_summary">Ringkasan Anomali Mingguan</option>
+                                        <option value="performance_report">Laporan Kinerja Absensi Mingguan</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifikasi Bulanan -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="enableMonthlyNotification" role="switch">
+                            <label class="form-check-label" for="enableMonthlyNotification">Aktifkan Notifikasi Bulanan</label>
+                        </div>
+                        <div class="schedule-options" id="monthlyOptions">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="monthlyDay" class="form-label">Tanggal Pengiriman</label>
+                                    <select class="form-select" id="monthlyDay">
+                                        <!-- Options for 1 to 31 will be generated by JS -->
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="monthlyTime" class="form-label">Waktu Pengiriman</label>
+                                    <input type="time" class="form-control" id="monthlyTime" value="09:00">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="monthlyContent" class="form-label">Konten Notifikasi Bulanan</label>
+                                    <select class="form-select" id="monthlyContent">
+                                        <option value="monthly_summary">Ringkasan Anomali Bulanan</option>
+                                        <option value="comprehensive_report">Laporan Absensi Komprehensif</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>Simpan Pengaturan Jadwal</button>
+                    <div id="scheduledNotificationStatus" class="mt-3 small"></div>
+                </form>
+            </div>
+
+            <!-- Bagian Pengaturan Notifikasi Umum -->
+            <div class="card settings-card fade-in-up" style="animation-delay: 0.3s;">
+                <h4><i class="fas fa-cog me-2"></i>Pengaturan Umum Notifikasi Sistem</h4>
+                <p class="text-muted small">Atur preferensi untuk notifikasi otomatis yang dikirim oleh sistem (misalnya, setelah impor data anomali).</p>
+                <a href="pengaturan_profil.html" class="btn btn-outline-secondary"><i class="fas fa-external-link-alt me-2"></i>Kelola Pengaturan Detail di Profil</a>
+            </div>
+
+
+            <!-- Bagian Pengujian Notifikasi -->
+            <div class="card settings-card fade-in-up" style="animation-delay: 0.4s;">
+                <h4><i class="fas fa-check-circle me-2"></i>Pengujian Notifikasi Otomatis</h4>
+                <p class="text-muted">Gunakan tombol di bawah untuk mengirim notifikasi uji ke semua saluran yang diaktifkan di **Pengaturan Umum Notifikasi Sistem** dan **Pengaturan Notifikasi Terjadwal** Anda, memastikan konfigurasi Anda berfungsi.</p>
+                <button id="testAllNotificationBtn" class="btn btn-outline-info"><i class="fas fa-paper-plane me-2"></i>Kirim Notifikasi Uji Seluruh Saluran</button>
+                <div id="testAllNotificationStatus" class="mt-3 small"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript function for logout
+        function logout() {
+            if (confirm("Apakah Anda yakin ingin keluar?")) {
+                console.log("User logged out. Redirecting to login page...");
+                window.location.href = 'login.html';
+            }
+        }
+
+        // JavaScript for Sidebar Toggle (Reused from previous files)
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggleTop = document.getElementById('sidebarToggleTop');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Initial setup for desktop sidebar visibility
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('hide');
+                    mainContent.classList.toggle('expanded'); // Adjust main content margin
+                });
+            }
+
+            if (sidebarToggleTop) {
+                sidebarToggleTop.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                });
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('show')) {
+                        sidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                    }
+                });
+            }
+
+            mainContent.addEventListener('click', function(event) {
+                // Check if the click is outside the sidebar AND sidebar is currently shown on small screens
+                if (window.innerWidth <= 768 && sidebar.classList.contains('show') && !sidebar.contains(event.target) && event.target !== sidebarToggleTop) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                }
+            });
+
+         const backendApiUrl = 'http://localhost:8001'; // <--- PASTIKAN INI ADALAH 8001
+const sendNotificationEndpoint = `${backendApiUrl}/api/send-notification`;
+const saveScheduledSettingsEndpoint = `${backendApiUrl}/api/save-scheduled-settings`; // Placeholder endpoint
+           
+
+            // Fungsi untuk mengirim notifikasi ke backend
+            async function sendNotification(subject, message, selectedChannels, recipientsConfig, statusElementId) {
+                const statusDiv = document.getElementById(statusElementId);
+                statusDiv.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-2"></i>Mengirim notifikasi...</span>';
+
+                // Siapkan objek recipients dari recipientsConfig
+                const recipients = {
+                    email: recipientsConfig.emailRecipient,
+                    whatsapp: recipientsConfig.whatsappNumber,
+                    telegram: recipientsConfig.telegramChatId
+                };
+
+                // Payload yang akan dikirim ke backend
+                const payload = {
+                    subject: subject,
+                    message: message,
+                    channels: selectedChannels, // Array of selected channels ['email', 'whatsapp', 'telegram']
+                    recipients: recipients // Object containing all recipient details
+                };
+
+                console.log("[Frontend] Mengirim payload notifikasi:", payload);
+
+                try {
+                    const response = await fetch(sendNotificationEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        statusDiv.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>${result.message || 'Notifikasi berhasil dikirim!'}</span>`;
+                        console.log("[Sukses] Respons backend notifikasi:", result);
+                        return true;
+                    } else {
+                        const errorMsg = result.message || result.error || 'Gagal mengirim notifikasi.';
+                        statusDiv.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle me-2"></i>${errorMsg}</span>`;
+                        console.error("[Gagal] Respons backend notifikasi:", result);
+                        return false;
+                    }
+                } catch (error) {
+                    statusDiv.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle me-2"></i>Gagal terhubung ke server: ${error.message}</span>`;
+                    console.error("[Error] Koneksi atau Server notifikasi:", error);
+                    return false;
+                }
+            }
+
+
+            // --- Mock Global Notification Settings (untuk demonstrasi) ---
+            // Ini akan memastikan ada data di localStorage seolah-olah sudah disimpan dari pengaturan_profil.html
+            // Dalam aplikasi nyata, data ini akan diambil dari database atau langsung dari halaman pengaturan_profil.html
+            const GLOBAL_SETTINGS_KEY = 'notificationSettings';
+            if (!localStorage.getItem(GLOBAL_SETTINGS_KEY)) {
+                const defaultGlobalSettings = {
+                    // GANTI DENGAN EMAIL/NOMOR/CHAT ID ASLI UNTUK UJI COBA JIKA BACKEND ANDA SUDAH DIKONFIGURASI
+                    emailRecipient: 'hcscsbi9@gmail.com',
+                    whatsappNumber: '+6285163131824',         // GANTI DENGAN NOMOR WHATSAPP ASLI UNTUK UJI COBA (dengan kode negara)
+                    telegramChatId: 'YOUR_TELEGRAM_CHAT_ID',  // GANTI DENGAN CHAT ID TELEGRAM ASLI UNTUK UJI COBA
+                    enableEmailAnomaly: true,
+                    enableWhatsappAnomaly: true,
+                    enableTelegramAnomaly: true,
+                    notificationThreshold: 5,
+                    dataImportNotification: true,
+                    errorLogNotification: true
+                };
+                localStorage.setItem(GLOBAL_SETTINGS_KEY, JSON.stringify(defaultGlobalSettings));
+                console.log("Mock 'notificationSettings' diinisialisasi di localStorage. Pastikan Anda telah mengganti email/nomor/chat ID dengan yang asli untuk pengujian.");
+            }
+
+            // Fungsi untuk memperbarui tampilan penerima (jika diperlukan)
+            function updateRecipientDisplays() {
+                const globalSettings = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY));
+                if (globalSettings) {
+                    // Bisa menampilkan detail seperti "Email: hcscsbi9@gmail.com, WA: +628..."
+                    // Untuk saat ini, kita biarkan saja teks "Human Capital Support Center"
+                    // atau bisa diganti dengan:
+                    // document.getElementById('notificationRecipient').value = `Email: ${globalSettings.emailRecipient || 'N/A'}, WA: ${globalSettings.whatsappNumber || 'N/A'}`;
+                    // document.getElementById('scheduledRecipient').value = `Email: ${globalSettings.emailRecipient || 'N/A'}, WA: ${globalSettings.whatsappNumber || 'N/A'}`;
+                }
+            }
+            updateRecipientDisplays(); // Panggil saat DOMContentLoaded
+
+            // --- Manual Notification Form Submission ---
+            document.getElementById('manualNotificationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const subject = document.getElementById('notificationSubject').value;
+                const message = document.getElementById('notificationMessage').value;
+                const selectedChannels = [];
+                if (document.getElementById('sendViaEmail').checked) selectedChannels.push('email');
+                if (document.getElementById('sendViaWhatsapp').checked) selectedChannels.push('whatsapp');
+                if (document.getElementById('sendViaTelegram').checked) selectedChannels.push('telegram'); // Tambah Telegram
+
+                if (selectedChannels.length === 0) {
+                    document.getElementById('manualNotificationStatus').innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle me-2"></i>Pilih setidaknya satu saluran untuk mengirim notifikasi.</span>';
+                    return;
+                }
+
+                const globalSettings = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY)) || {};
+
+                const success = await sendNotification(
+                    subject,
+                    message,
+                    selectedChannels,
+                    globalSettings, // Pass global settings for recipient details
+                    'manualNotificationStatus'
+                );
+
+                if (success) {
+                    // Clear form on success, but keep recipient field value
+                    document.getElementById('notificationSubject').value = '';
+                    document.getElementById('notificationMessage').value = '';
+                    document.getElementById('sendViaEmail').checked = true; // Default back to email checked
+                    document.getElementById('sendViaWhatsapp').checked = false;
+                    document.getElementById('sendViaTelegram').checked = false;
+                }
+            });
+
+            // --- Scheduled Notification Settings Logic ---
+            const scheduledSettingsKey = 'scheduledNotificationSettings';
+
+            const scheduledElements = {
+                enableDaily: document.getElementById('enableDailyNotification'),
+                dailyOptions: document.getElementById('dailyOptions'),
+                dailyTime: document.getElementById('dailyTime'),
+                dailyContent: document.getElementById('dailyContent'),
+
+                enableWeekly: document.getElementById('enableWeeklyNotification'),
+                weeklyOptions: document.getElementById('weeklyOptions'),
+                weeklyDay: document.getElementById('weeklyDay'),
+                weeklyTime: document.getElementById('weeklyTime'),
+                weeklyContent: document.getElementById('weeklyContent'),
+
+                enableMonthly: document.getElementById('enableMonthlyNotification'),
+                monthlyOptions: document.getElementById('monthlyOptions'),
+                monthlyDay: document.getElementById('monthlyDay'),
+                monthlyTime: document.getElementById('monthlyTime'),
+                monthlyContent: document.getElementById('monthlyContent'),
+
+                statusDiv: document.getElementById('scheduledNotificationStatus')
+            };
+
+            // Populate monthly day options
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                scheduledElements.monthlyDay.appendChild(option);
+            }
+
+            function applyScheduleState(checkbox, optionsContainer) {
+                if (checkbox.checked) {
+                    optionsContainer.classList.remove('disabled');
+                    Array.from(optionsContainer.querySelectorAll('input, select')).forEach(el => el.removeAttribute('disabled'));
+                } else {
+                    optionsContainer.classList.add('disabled');
+                    Array.from(optionsContainer.querySelectorAll('input, select')).forEach(el => el.setAttribute('disabled', 'disabled'));
+                }
+            }
+
+            function loadScheduledSettings() {
+                const savedSettings = JSON.parse(localStorage.getItem(scheduledSettingsKey)) || {};
+
+                scheduledElements.enableDaily.checked = savedSettings.enableDaily || false;
+                scheduledElements.dailyTime.value = savedSettings.dailyTime || '09:00';
+                scheduledElements.dailyContent.value = savedSettings.dailyContent || 'summary';
+                applyScheduleState(scheduledElements.enableDaily, scheduledElements.dailyOptions);
+
+                scheduledElements.enableWeekly.checked = savedSettings.enableWeekly || false;
+                scheduledElements.weeklyDay.value = savedSettings.weeklyDay || 'Monday';
+                scheduledElements.weeklyTime.value = savedSettings.weeklyTime || '09:00';
+                scheduledElements.weeklyContent.value = savedSettings.weeklyContent || 'weekly_summary';
+                applyScheduleState(scheduledElements.enableWeekly, scheduledElements.weeklyOptions);
+
+                scheduledElements.enableMonthly.checked = savedSettings.enableMonthly || false;
+                scheduledElements.monthlyDay.value = savedSettings.monthlyDay || '1';
+                scheduledElements.monthlyTime.value = savedSettings.monthlyTime || '09:00';
+                scheduledElements.monthlyContent.value = savedSettings.monthlyContent || 'monthly_summary';
+                applyScheduleState(scheduledElements.enableMonthly, scheduledElements.monthlyOptions);
+            }
+
+            async function saveScheduledSettings() {
+                const settings = {
+                    enableDaily: scheduledElements.enableDaily.checked,
+                    dailyTime: scheduledElements.dailyTime.value,
+                    dailyContent: scheduledElements.dailyContent.value,
+
+                    enableWeekly: scheduledElements.enableWeekly.checked,
+                    weeklyDay: scheduledElements.weeklyDay.value,
+                    weeklyTime: scheduledElements.weeklyTime.value,
+                    weeklyContent: scheduledElements.weeklyContent.value,
+
+                    enableMonthly: scheduledElements.enableMonthly.checked,
+                    monthlyDay: scheduledElements.monthlyDay.value,
+                    monthlyTime: scheduledElements.monthlyTime.value,
+                    monthlyContent: scheduledElements.monthlyContent.value,
+                };
+                localStorage.setItem(scheduledSettingsKey, JSON.stringify(settings));
+
+                // --- Kirim pengaturan ke Backend (Konseptual) ---
+                // Dalam aplikasi nyata, Anda akan mengirim `settings` ini ke backend
+                // agar backend bisa menyimpan dan mengelola jadwal pengiriman notifikasi.
+                scheduledElements.statusDiv.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-2"></i>Menyimpan dan mengkonfigurasi jadwal...</span>';
+                try {
+                    const response = await fetch(saveScheduledSettingsEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(settings)
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        scheduledElements.statusDiv.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-2"></i>Pengaturan jadwal berhasil disimpan dan dikirim ke server!</span>';
+                        console.log("[Sukses] Pengaturan jadwal dikirim ke backend:", result);
+                    } else {
+                        scheduledElements.statusDiv.innerHTML = `<span class="text-warning"><i class="fas fa-exclamation-circle me-2"></i>Pengaturan disimpan lokal, namun gagal dikirim ke server: ${result.message || 'Error'}</span>`;
+                        console.error("[Gagal] Pengaturan jadwal gagal dikirim ke backend:", result);
+                    }
+                } catch (error) {
+                    scheduledElements.statusDiv.innerHTML = `<span class="text-warning"><i class="fas fa-exclamation-circle me-2"></i>Pengaturan disimpan lokal, namun gagal terhubung ke server: ${error.message}</span>`;
+                    console.error("[Error] Gagal terhubung ke server untuk menyimpan jadwal:", error);
+                }
+
+                setTimeout(() => scheduledElements.statusDiv.innerHTML = '', 5000); // Clear message after 5 seconds
+            }
+
+            // Event listeners for scheduled settings toggles
+            scheduledElements.enableDaily.addEventListener('change', () => applyScheduleState(scheduledElements.enableDaily, scheduledElements.dailyOptions));
+            scheduledElements.enableWeekly.addEventListener('change', () => applyScheduleState(scheduledElements.enableWeekly, scheduledElements.weeklyOptions));
+            scheduledElements.enableMonthly.addEventListener('change', () => applyScheduleState(scheduledElements.enableMonthly, scheduledElements.monthlyOptions));
+
+            // Save scheduled settings on form submit
+            document.getElementById('scheduledNotificationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveScheduledSettings();
+            });
+
+            // Load settings when page loads
+            loadScheduledSettings();
+
+            // --- Test All Notification Button ---
+            document.getElementById('testAllNotificationBtn').addEventListener('click', async function() {
+                const globalSettings = JSON.parse(localStorage.getItem(GLOBAL_SETTINGS_KEY)) || {};
+                const statusDiv = document.getElementById('testAllNotificationStatus');
+
+                statusDiv.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-2"></i>Mengirim notifikasi uji ke semua saluran aktif...</span>';
+
+                const testSubject = "Notifikasi Uji Otomatis Anomali Insight";
+                const testMessage = "Ini adalah pesan uji untuk memastikan saluran notifikasi Anda berfungsi baik dari pengaturan umum maupun terjadwal. Jika Anda tidak menerima notifikasi, pastikan semua kredensial di backend Anda telah dikonfigurasi dengan benar (email, Twilio WhatsApp, Telegram Bot Token).";
+
+                // Gabungkan semua saluran yang aktif dari pengaturan umum
+                const combinedChannels = [];
+                if (globalSettings.enableEmailAnomaly) combinedChannels.push('email');
+                if (globalSettings.enableWhatsappAnomaly) combinedChannels.push('whatsapp');
+                if (globalSettings.enableTelegramAnomaly) combinedChannels.push('telegram'); // Termasuk Telegram
+
+                if (combinedChannels.length === 0) {
+                     statusDiv.innerHTML = '<span class="text-warning"><i class="fas fa-info-circle me-2"></i>Tidak ada saluran notifikasi yang diaktifkan di pengaturan umum untuk diuji.</span>';
+                     return;
+                }
+
+                const success = await sendNotification(
+                    testSubject,
+                    testMessage,
+                    combinedChannels,
+                    globalSettings, // Pass global settings for recipient details
+                    'testAllNotificationStatus'
+                );
+
+                // sendNotification function already updates its statusDiv.
+                // You might add additional logging or UI updates here if needed after the async call completes.
+            });
+        });
+    </script>
+</body>
+</html>

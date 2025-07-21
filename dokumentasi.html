@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Halaman Dokumentasi Sistem">
+    <meta name="author" content="">
+    <title>Dokumentasi - Anomaly Insight</title>
+     <link rel="icon" href="img/LOGO-SBI-BESAR.svg">
+     
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #e74a3b;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fc;
+            --dark-text: #2c3e50;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --gradient-primary: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+            --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+            border-right: 1px solid #e3e6f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar.hide { 
+            transform: translateX(-100%);
+        }
+        .sidebar.show { 
+            transform: translateX(0);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            background: white;
+        }
+        .sidebar.collapsed .sidebar-brand .d-flex div:last-child {
+            opacity: 0;
+            width: 0;
+            transition: opacity 0.3s ease, width 0.3s ease;
+        }
+        .sidebar-brand .d-flex div:first-child { 
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+        .sidebar.collapsed .nav-section-title {
+            text-align: center;
+            font-size: 0.6rem;
+            opacity: 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+            background: linear-gradient(90deg, rgba(231, 74, 59, 0.1) 0%, transparent 100%);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.2rem;
+        }
+        .sidebar.collapsed .nav-link span {
+            opacity: 0;
+            width: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            transition: margin-left 0.3s ease;
+            padding: 0; /* Menghilangkan padding dari main-content */
+        }
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -280px;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar.collapsed + .main-content {
+                 margin-left: 0;
+            }
+            .navbar .d-md-none {
+                display: block !important;
+            }
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: 2rem;
+            margin: auto 1rem;
+        }
+
+        .badge-counter {
+            font-size: 0.6rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link.dropdown-toggle {
+            position: relative;
+            padding: 0.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-link.dropdown-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .img-profile {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            margin: 0;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Icon Circle */
+        .icon-circle {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem; 
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title .subtitle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Documentation Specific Styles */
+        .documentation-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        .documentation-card h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .documentation-section {
+            margin-bottom: 2rem;
+        }
+        .documentation-section h5 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        .documentation-section p {
+            margin-bottom: 1rem;
+            color: var(--dark-text);
+        }
+        .documentation-section ul {
+            list-style: disc;
+            padding-left: 25px;
+            margin-bottom: 1rem;
+        }
+        .documentation-section ul li {
+            margin-bottom: 0.5rem;
+            color: var(--dark-text);
+        }
+        .documentation-section code {
+            background-color: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #c0392b;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <img src="img/LOGO-SBI-BESAR.svg" alt="SBI Logo" style="height: 40px; width: auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="d-none align-items-center justify-content-center" style="width: 40px; height: 40px; background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%); border-radius: 8px;">
+                        <i class="fas fa-chart-line text-white" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div>
+                    <!-- Nama aplikasi/brand text di dashboard.html ini dikosongkan -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Beranda -->
+            <div class="nav-section">
+                <div class="nav-section-title">Beranda</div>
+                <div class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analisis Data -->
+            <div class="nav-section">
+                <div class="nav-section-title">Analisis Data</div>
+                <div class="nav-item">
+                    <a href="impordataabsensi.html" class="nav-link">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Impor Data Absensi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="ringkasan.html" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Ringkasan Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="detaildata.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Detail Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="Analisi.html" class="nav-link"> <!-- Diperbaiki hrefnya -->
+                        <i class="fas fa-chart-line"></i>
+                        <span>Laporan Analisis</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pengaturan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Pengaturan</div>
+                <div class="nav-item">
+                    <a href="pengaturan.html" class="nav-link"> 
+                        <i class="fas fa-bell"></i>
+                        <span>Notifikasi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="manajemen_pengguna.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Manajemen Pengguna</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bantuan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Bantuan</div>
+                <div class="nav-item">
+                    <a href="dokumentasi.html" class="nav-link active">
+                        <i class="fas fa-book"></i>
+                        <span>Dokumentasi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+          <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm">
+            <!-- Sidebar Toggle (Topbar) -->
+            <!-- Tombol untuk mobile -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <!-- Tombol untuk desktop -->
+            <button id="sidebarToggle" class="btn btn-link d-none d-md-block rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Nav Item - Alerts -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw"></i>
+                        <!-- Counter - Alerts -->
+                        <span class="badge rounded-pill badge-counter bg-danger">3+</span>
+                    </a>
+                    <!-- Dropdown - Alerts -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="alertsDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifikasi
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-danger">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">12 Desember 2024</div>
+                                <span class="font-weight-bold">Anomali tinggi terdeteksi di Departemen IT!</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">11 Desember 2024</div>
+                                Keterlambatan massal terdeteksi hari ini
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
+                    </div>
+                </li>
+
+                <!-- Nav Item - Messages -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-envelope fa-fw"></i>
+                        <!-- Counter - Messages -->
+                        <span class="badge rounded-pill badge-counter bg-danger">7</span>
+                    </a>
+                    <!-- Dropdown - Messages -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="messagesDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-envelope me-2"></i>
+                            Pesan
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Emily Johnson · 58m</div>
+                                <span class="font-weight-bold">Laporan analisis sudah siap untuk direview...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Jae Chun · 1d</div>
+                                <span class="font-weight-bold">Mohon konfirmasi untuk setting notifikasi...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                    </div>
+                </li>
+
+                <div class="topbar-divider d-none d-sm-block"></div>
+
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">George Russell</span>
+                        <img class="img-profile rounded-circle" src="img/suami.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/40'">
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="profil.html">
+                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
+                            Profil Saya
+                        </a>
+                        <a class="dropdown-item" href="pengaturan.html">
+                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
+                            Pengaturan
+                        </a>
+                        <a class="dropdown-item" href="riwayat_aktivitas.html">
+                            <i class="fas fa-history fa-sm fa-fw me-2 text-gray-400"></i>
+                            Riwayat Aktivitas
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                            Keluar
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+
+        <div class="content">
+            <!-- Judul Halaman -->
+            <div class="page-title mb-4 fade-in-up">
+                <h1><i class="fas fa-book text-secondary me-2"></i>Dokumentasi Sistem</h1>
+                <p class="subtitle">Panduan lengkap penggunaan dan fitur-fitur Anomaly Insight.</p>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.1s;">
+                <h4><i class="fas fa-info-circle me-2"></i>Pendahuluan</h4>
+                <div class="documentation-section">
+                    <p>Selamat datang di dokumentasi sistem Anomaly Insight. Dokumen ini bertujuan untuk memberikan panduan komprehensif mengenai cara menggunakan semua fitur yang tersedia dalam aplikasi kami.</p>
+                    <p>Anomaly Insight adalah sistem canggih yang dirancang untuk mendeteksi anomali pada data absensi karyawan, membantu manajemen dalam mengidentifikasi pola kehadiran yang tidak biasa dan potensi masalah operasional.</p>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.2s;">
+                <h4><i class="fas fa-tachometer-alt me-2"></i>Modul Dashboard</h4>
+                <div class="documentation-section">
+                    <h5>Ikhtisar</h5>
+                    <p>Modul Dashboard adalah halaman utama yang memberikan gambaran umum kinerja sistem deteksi anomali. Anda akan menemukan ringkasan statistik penting dan grafik tren anomali terbaru.</p>
+                    <h5>Fitur Utama</h5>
+                    <ul>
+                        <li><p><strong>Total Anomali Terdeteksi:</strong> Menampilkan jumlah total anomali yang terdeteksi dalam periode waktu tertentu (default 30 hari).</p></li>
+                        <li><p><strong>Anomali Hari Ini:</strong> Menunjukkan jumlah anomali yang terdeteksi pada hari saat ini.</p></li>
+                        <li><p><strong>Jenis Anomali Terbanyak:</strong> Mengidentifikasi kategori anomali yang paling sering muncul.</p></li>
+                        <li><p><strong>Cost Center Anomali Tertinggi:</strong> Menyoroti departemen atau pusat biaya dengan jumlah anomali tertinggi.</p></li>
+                        <li><p><strong>Tren Anomali per Hari:</strong> Grafik yang memvisualisasikan perubahan jumlah anomali dari waktu ke waktu.</p></li>
+                        <li><p><strong>Grafik Pendukung:</strong> Visualisasi detail mengenai distribusi jenis anomali, karyawan dengan anomali tertinggi, jam lembur berdasarkan aktivitas, dan anomali per shift.</p></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.3s;">
+                <h4><i class="fas fa-cloud-upload-alt me-2"></i>Modul Impor Data Absensi</h4>
+                <div class="documentation-section">
+                    <h5>Tujuan</h5>
+                    <p>Modul ini memungkinkan pengguna untuk mengunggah data absensi karyawan ke dalam sistem untuk diproses dan dianalisis.</p>
+                    <h5>Cara Penggunaan</h5>
+                    <ol>
+                        <li><p><strong>Pilih File:</strong> Klik area "Klik untuk memilih file CSV atau Excel" atau seret file Anda ke area yang disediakan.</p></li>
+                        <li><p><strong>Format File:</strong> Pastikan file Anda dalam format <code>.csv</code>, <code>.xls</code>, atau <code>.xlsx</code>.</p></li>
+                        <li><p><strong>Struktur Kolom:</strong> Kolom wajib dalam file absensi adalah <code>persno</code>, <code>perioddate</code>, <code>clockin</code>, <code>clockout</code>, dan <code>shiftcode</code>. Pastikan data Anda sesuai dengan template.</p></li>
+                        <li><p><strong>Proses Impor:</strong> Setelah memilih file, klik tombol "Proses & Impor Data". Sistem akan memvalidasi dan menambahkan data Anda ke antrean analisis.</p></li>
+                        <li><p><strong>Status Impor:</strong> Pantau progress bar untuk melihat status unggahan. Pemberitahuan akan muncul setelah impor selesai atau jika ada kesalahan.</p></li>
+                    </ol>
+                    <a href="path/to/template.csv" download class="btn btn-outline-secondary btn-sm me-2"><i class="fas fa-file-csv me-1"></i>Unduh Template CSV</a>
+                    <a href="path/to/template.xlsx" download class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>Unduh Template Excel</a>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.4s;">
+                <h4><i class="fas fa-table me-2"></i>Modul Detail Anomali</h4>
+                <div class="documentation-section">
+                    <h5>Tujuan</h5>
+                    <p>Modul ini menyediakan tabel rinci dari semua catatan anomali yang terdeteksi, memungkinkan pengguna untuk menelusuri data mentah dan menerapkan filter spesifik.</p>
+                    <h5>Fitur Utama</h5>
+                    <ul>
+                        <li><p><strong>Tabel Interaktif:</strong> Jelajahi data anomali dalam format tabel yang dapat diurutkan berdasarkan kolom manapun.</p></li>
+                        <li><p><strong>Pencarian:</strong> Gunakan kolom pencarian untuk menemukan entri berdasarkan kata kunci apa pun dalam tabel.</p></li>
+                        <li><p><strong>Filter Tanggal:</strong> Saring anomali berdasarkan rentang tanggal tertentu (Tanggal Mulai dan Tanggal Akhir).</p></li>
+                        <li><p><strong>Filter Jenis Anomali:</strong> Saring anomali berdasarkan kategori jenis anomali (misalnya, Clock-out kosong, Bekerja saat OFF).</p></li>
+                        <li><p><strong>Detail Kolom:</strong> Tabel menampilkan informasi seperti ID Karyawan, Nama Karyawan, Tanggal, Shift, Departemen, Status Anomali (Ya/Tidak), Alasan Anomali, Clock In/Out, Jam Lembur, dan Jam Kerja Aktual.</p></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.5s;">
+                <h4><i class="fas fa-chart-line me-2"></i>Modul Laporan Analisis</h4>
+                <div class="documentation-section">
+                    <h5>Tujuan</h5>
+                    <p>Modul ini menyediakan ringkasan eksekutif dari hasil analisis anomali dan opsi untuk mengunduh laporan lengkap.</p>
+                    <h5>Isi Laporan</h5>
+                    <ul>
+                        <li><p><strong>Ringkasan Statistik:</strong> Menampilkan metrik kunci seperti total anomali terdeteksi, jenis anomali terbanyak, dan departemen dengan anomali tertinggi.</p></li>
+                        <li><p><strong>Tanggal Pembaruan Data:</strong> Menunjukkan kapan data laporan terakhir kali diperbarui, memastikan pengguna memiliki informasi terkini.</p></li>
+                        <li><p><strong>Visualisasi Metabase:</strong> Menampilkan grafik interaktif yang tertanam dari Metabase (misalnya, tren harian, anomali per jenis, per cost center, top karyawan, lembur per aktivitas, dan anomali per shift) untuk wawasan visual yang mendalam.</p></li>
+                        <li><p><strong>Unduh Laporan CSV:</strong> Tombol untuk mengunduh file <code>.csv</code> mentah yang telah diproses, memungkinkan pengguna untuk melakukan analisis lebih lanjut secara offline.</p></li>
+                        <li><p><strong>Unduh Laporan PDF (Segera Hadir):</strong> Fitur yang akan datang untuk mengunduh laporan dalam format PDF.</p></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.6s;">
+                <h4><i class="fas fa-users-cog me-2"></i>Modul Manajemen Pengguna</h4>
+                <div class="documentation-section">
+                    <h5>Tujuan</h5>
+                    <p>Modul ini memungkinkan administrator untuk mengelola daftar pengguna sistem, termasuk penambahan, pengeditan, dan penghapusan akun pengguna.</p>
+                    <h5>Fitur Utama</h5>
+                    <ul>
+                        <li><p><strong>Daftar Pengguna:</strong> Melihat semua akun pengguna terdaftar dengan informasi seperti nama, email, peran, dan status (Aktif/Tidak Aktif).</p></li>
+                        <li><p><strong>Tambah Pengguna Baru:</strong> Formulir modal untuk membuat akun pengguna baru dengan detail dasar dan penetapan peran.</p></li>
+                        <li><p><strong>Aksi Pengguna:</strong> Setiap baris pengguna dilengkapi dengan tombol untuk:</p>
+                            <ul>
+                                <li><p><i class="fas fa-eye"></i> Melihat detail profil pengguna secara lengkap.</p></li>
+                                <li><p><i class="fas fa-edit"></i> Mengedit informasi pengguna atau peran mereka.</p></li>
+                                <li><p><i class="fas fa-trash-alt"></i> Menghapus akun pengguna dari sistem.</p></li>
+                            </ul>
+                        </li>
+                        <li><p><strong>Peran Pengguna:</strong> Sistem mendukung peran seperti Administrator (akses penuh), Analis Data (akses ke laporan dan detail data), dan Pengguna Biasa (akses terbatas ke ringkasan dan laporan). </p></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.7s;">
+                <h4><i class="fas fa-user-circle me-2"></i>Profil Saya</h4>
+                <div class="documentation-section">
+                    <h5>Tujuan</h5>
+                    <p>Halaman ini menampilkan informasi pribadi dan detail akun pengguna yang sedang login.</p>
+                    <h5>Informasi yang Ditampilkan</h5>
+                    <ul>
+                        <li><p><strong>Avatar Profil:</strong> Gambar profil pengguna.</p></li>
+                        <li><p><strong>Nama Lengkap:</strong> Nama lengkap pengguna.</p></li>
+                        <li><p><strong>Peran:</strong> Peran pengguna dalam sistem (misalnya, Administrator, Analis Data).</p></li>
+                        <li><p><strong>ID Pengguna:</strong> ID unik akun pengguna.</p></li>
+                        <li><p><strong>Email dan Telepon:</strong> Informasi kontak pengguna.</p></li>
+                        <li><p><strong>Departemen:</strong> Departemen tempat pengguna bekerja.</p></li>
+                        <li><p><strong>Tanggal Bergabung:</strong> Tanggal pengguna pertama kali terdaftar dalam sistem.</p></li>
+                        <li><p><strong>Akses Terakhir:</strong> Waktu terakhir pengguna aktif di sistem.</p></li>
+                    </ul>
+                    <h5>Aksi yang Tersedia</h5>
+                    <ul>
+                        <li><p><strong>Edit Profil:</strong> Tombol untuk mengubah informasi pribadi seperti nama atau detail kontak.</p></li>
+                        <li><p><strong>Ubah Password:</strong> Tombol untuk mengubah kata sandi akun.</p></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.8s;">
+                <h4><i class="fas fa-sliders-h me-2"></i>Pengaturan Profil</h4>
+                <div class="documentation-section">
+                    <h5>Tujuan</h5>
+                    <p>Halaman ini memungkinkan pengguna untuk mengelola preferensi pribadi dan pengaturan sistem terkait akun mereka.</p>
+                    <h5>Pengaturan yang Tersedia</h5>
+                    <ul>
+                        <li><p><strong>Pengaturan Umum:</strong></p>
+                            <ul>
+                                <li><p><strong>Bahasa Default:</strong> Pilih bahasa antarmuka aplikasi.</p></li>
+                                <li><p><strong>Zona Waktu:</strong> Atur zona waktu yang relevan dengan lokasi pengguna.</p></li>
+                                <li><p><strong>Tampilan Tema:</strong> Pilih antara tema terang atau gelap untuk antarmuka pengguna.</p></li>
+                            </ul>
+                        </li>
+                        <li><p><strong>Pengaturan Notifikasi:</strong></p>
+                            <ul>
+                                <li><p><strong>Pemberitahuan Email:</strong> Aktifkan atau nonaktifkan notifikasi email untuk anomali baru atau ringkasan laporan mingguan.</p></li>
+                                <li><p><strong>Pemberitahuan dalam Aplikasi:</strong> Kontrol notifikasi real-time dalam aplikasi untuk anomali dan pembaruan sistem.</p></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p>Setelah melakukan perubahan, pastikan untuk mengklik tombol "Simpan Perubahan" untuk menerapkan pengaturan baru.</p>
+                </div>
+            </div>
+
+            <div class="documentation-card fade-in-up" style="animation-delay: 0.9s;">
+                <h4><i class="fas fa-history me-2"></i>Riwayat Aktivitas</h4>
+                <div class="documentation-section">
+                    <h5>Tujuan</h5>
+                    <p>Halaman ini menyediakan log lengkap dari semua aktivitas yang dilakukan oleh pengguna di akun mereka, membantu dalam audit dan peninjauan aktivitas sistem.</p>
+                    <h5>Informasi Aktivitas</h5>
+                    <ul>
+                        <li><p>Setiap entri aktivitas mencakup tanggal dan waktu kejadian, serta deskripsi singkat mengenai apa yang telah dilakukan (misalnya, mengunggah file, menerapkan filter, mengubah pengaturan, melihat laporan, login).</p></li>
+                        <li><p>Ikon visual yang berbeda digunakan untuk setiap jenis aktivitas agar mudah dikenali.</p></li>
+                    </ul>
+                    <h5>Navigasi dan Peninjauan</h5>
+                    <p>Daftar aktivitas akan ditampilkan secara kronologis terbalik (terbaru di atas). Jika ada banyak aktivitas, Anda dapat memuat lebih banyak entri menggunakan tombol "Muat Lebih Banyak Aktivitas".</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript function for logout
+        function logout() {
+            if (confirm("Apakah Anda yakin ingin keluar?")) {
+                console.log("User logged out. Redirecting to login page...");
+                window.location.href = 'login.html'; 
+            }
+        }
+
+        // JavaScript for Sidebar Toggle (Reused from previous files)
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggleTop = document.getElementById('sidebarToggleTop');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Initial setup for desktop sidebar visibility
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
+
+            if (sidebarToggleTop) {
+                sidebarToggleTop.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                });
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('show')) {
+                        sidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                    }
+                });
+            }
+
+            mainContent.addEventListener('click', function(event) {
+                // Check if the click is outside the sidebar AND sidebar is currently shown on small screens
+                if (window.innerWidth <= 768 && sidebar.classList.contains('show') && !sidebar.contains(event.target) && event.target !== sidebarToggleTop) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Dashboard Analisis Anomali Absensi - Enhanced Version">
+    <meta name="author" content="">
+    <title>Dashboard Anomali Kehadiran - Enhanced</title>
+    <link rel="icon" href="img/LOGO-SBI-BESAR.svg">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #e74a3b;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fc;
+            --dark-text: #2c3e50;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --gradient-primary: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+            --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+            border-right: 1px solid #e3e6f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease; /* Hanya transisi untuk transform */
+            box-shadow: var(--shadow);
+            transform: translateX(0); /* Default: sidebar terlihat di desktop */
+        }
+
+        .sidebar.hide { /* Kelas untuk menyembunyikan sidebar di desktop */
+            transform: translateX(-100%);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            background: white;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+            background: linear-gradient(90deg, rgba(231, 74, 59, 0.1) 0%, transparent 100%);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px; /* Default: selalu ada margin untuk sidebar di desktop */
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded { /* Kelas untuk konten utama saat sidebar disembunyikan di desktop */
+            margin-left: 0;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: 2rem;
+            margin: auto 1rem;
+        }
+
+        .badge-counter {
+            font-size: 0.6rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link.dropdown-toggle {
+            position: relative;
+            padding: 0.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-link.dropdown-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .img-profile {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Styling for the notification icons inside the dropdown */
+        .dropdown-menu .icon-circle {
+            width: 40px; /* Set a fixed width */
+            height: 40px; /* Set a fixed height (same as width for a perfect circle) */
+            border-radius: 50%; /* Make it perfectly circular */
+            display: flex; /* Use flexbox to center the icon inside */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            font-size: 1.2rem; /* Adjust icon size inside the circle */
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            margin: 0;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title .subtitle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+             text-decoration: none;
+    color: inherit;
+    display: block;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.2);
+            transform: scale(1.01); 
+            transition: 0.2s ease-in-out;
+        }
+
+        .stat-card.danger::before {
+            background: var(--gradient-primary);
+        }
+
+        .stat-card.warning::before {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #e67e22 100%);
+        }
+
+        .stat-card.info::before {
+            background: linear-gradient(135deg, var(--info-color) 0%, #138496 100%);
+        }
+
+        .stat-card.success::before {
+            background: linear-gradient(135deg, var(--success-color) 0%, #218838 100%);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.danger .stat-icon {
+            background: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .stat-card.warning .stat-icon {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+
+        .stat-card.info .stat-icon {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info-color);
+        }
+
+        .stat-card.success .stat-icon {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--primary-color);
+        }
+
+        /* Chart Cards */
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .chart-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-body {
+            padding: 1.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%); /* Sidebar tersembunyi secara default di mobile */
+                position: fixed; /* Penting agar sidebar bisa melayang di atas konten */
+                z-index: 1001; /* Pastikan di atas overlay */
+            }
+
+            .sidebar.show { /* Kelas untuk menampilkan sidebar di mobile */
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0; /* Main content selalu full width di mobile */
+            }
+            
+            /* Overlay for mobile */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <img src="img/LOGO-SBI-BESAR.svg" alt="SBI Logo" style="height: 40px; width: auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="d-none align-items-center justify-content-center" style="width: 40px; height: 40px; background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%); border-radius: 8px;">
+                        <i class="fas fa-chart-line text-white" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Beranda -->
+            <div class="nav-section">
+                <div class="nav-section-title">Beranda</div>
+                <div class="nav-item">
+                    <a href="dashboard.html" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analisis Data -->
+            <div class="nav-section">
+                <div class="nav-section-title">Analisis Data</div>
+                <div class="nav-item">
+                    <a href="impordataabsensi.html" class="nav-link">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Impor Data Absensi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="ringkasan.html" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Ringkasan Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="detaildata.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Detail Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="Analisi.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Laporan Analisis</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pengaturan -->
+                    <div class="nav-section">
+                <div class="nav-section-title">Pengaturan</div>
+   <div class="nav-item">
+                    <a href="notifikasi.html" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifikasi</span>
+                    </a>
+                <div class="nav-item">
+                    <a href="manajemen_pengguna.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Manajemen Pengguna</span>
+                     </a>
+                </div>
+            </div>
+        </div>
+    
+            <!-- Bantuan -->
+            <div class="nav-section">
+                <div class="nav-section-title">Bantuan</div>
+                <div class="nav-item">
+                    <a href="dokumentasi.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Dokumentasi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+          <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm">
+            <!-- Sidebar Toggle (Topbar) -->
+            <!-- Tombol untuk mobile -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <!-- Tombol untuk desktop -->
+            <button id="sidebarToggle" class="btn btn-link d-none d-md-block rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+  <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Nav Item - Alerts -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw"></i>
+                        <!-- Counter - Alerts -->
+                        <span class="badge rounded-pill badge-counter bg-danger">3+</span>
+                    </a>
+                    <!-- Dropdown - Alerts -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="alertsDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifikasi
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-danger">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">12 Desember 2024</div>
+                                <span class="font-weight-bold">Anomali tinggi terdeteksi di Departemen IT!</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">11 Desember 2024</div>
+                                Keterlambatan massal terdeteksi hari ini
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
+                    </div>
+                </li>
+
+                <!-- Nav Item - Messages -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-envelope fa-fw"></i>
+                        <!-- Counter - Messages -->
+                        <span class="badge rounded-pill badge-counter bg-danger">7</span>
+                    </a>
+                    <!-- Dropdown - Messages -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="messagesDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-envelope me-2"></i>
+                            Pesan
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Emily Johnson · 58m</div>
+                                <span class="font-weight-bold">Laporan analisis sudah siap untuk direview...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Jae Chun · 1d</div>
+                                <span class="font-weight-bold">Mohon konfirmasi untuk setting notifikasi...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                    </div>
+                </li>
+
+                <div class="topbar-divider d-none d-sm-block"></div>
+
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">George Russell</span>
+                        <img class="img-profile rounded-circle" src="img/suami.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/40'">
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="profil.html">
+                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
+                            Profil Saya
+                        </a>
+                        <a class="dropdown-item" href="pengaturan.html">
+                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
+                            Pengaturan
+                        </a>
+                        <a class="dropdown-item" href="riwayat_aktivitas.html">
+                            <i class="fas fa-history fa-sm fa-fw me-2 text-gray-400"></i>
+                            Riwayat Aktivitas
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                            Keluar
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Content -->
+        <div class="content">
+           <!-- Page Title -->
+<div class="page-title fade-in-up">
+    <h1>
+        <i class="fas fa-chart-line text-danger"></i>
+        Dashboard Analisis Anomali Kehadiran
+    </h1>
+    <p class="subtitle">Monitoring dan analisis komprehensif untuk deteksi anomali absensi karyawan</p>
+    <div class="mt-3">
+        <!-- TOMBOL UNDUH LAPORAN (DIAKTIFKAN) -->
+        <a href="hasil_deteksi_anomali.csv" download="Laporan_Anomali_Kehadiran.csv" class="btn btn-primary me-2 text-white text-decoration-none">
+            <i class="fas fa-download me-2"></i>
+            Unduh Laporan
+        </a>
+        
+        <!-- TOMBOL REFRESH DATA (DIAKTIFKAN) -->
+        <a href="#" onclick="location.reload();" class="btn btn-outline-primary text-decoration-none">
+            <i class="fas fa-sync-alt me-2"></i>
+            Refresh Data
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid fade-in-up">
+    <a href="detaildata.html" class="stat-card danger">
+        <div class="stat-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-number">3,294</div>
+        <div class="stat-label">Total Anomali Terdeteksi</div>
+        <div class="stat-change negative"></div>
+    </a>
+
+    <a href="detaildata.html" class="stat-card warning">
+        <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-number">3,242</div>
+        <div class="stat-label">Clock-out Kosong</div>
+        <div class="stat-change negative">
+            <i class="fas fa-arrow-up"></i>
+            <span>Masalah utama sistem & prosedur</span>
+        </div>
+    </a>
+
+    <a href="detaildata.html" class="stat-card info">
+        <div class="stat-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="stat-number">27</div>
+        <div class="stat-label">Kasus Investigasi</div>
+        <div class="stat-change positive">
+            <i class="fas fa-arrow-down"></i>
+            <span>Data per 16 Apr - 15 Mei</span>
+        </div>
+    </a>
+
+    <a href="detaildata.html" class="stat-card success">
+        <div class="stat-icon">
+            <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="stat-number">110</div>
+        <div class="stat-label">Rata-rata Anomali Harian</div>
+        <div class="stat-change negative">
+            <i class="fas fa-arrow-up"></i>
+            <span>Perlu perhatian</span>
+        </div>
+    </a>
+</div>
+
+            <!-- Charts Row -->
+            <div class="row fade-in-up">
+        
+                <!-- Kartu: Tren Anomali per Hari -->
+<div class="col-lg-8 mb-4">
+    <div class="card shadow-sm h-100">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 fw-bold text-danger">
+                <i class="fas fa-chart-area me-2"></i>
+                Tren Anomali per Hari
+            </h6> <!-- Perbaikan: Menggunakan </h6> sebagai tag penutup -->
+            <a href="http://localhost:3000/public/question/31d3359a-cc4e-4601-90c3-f8d5d9290832" target="_blank" class="btn btn-outline-secondary btn-sm" title="Buka di tab baru">
+                Lihat Detail <i class="fas fa-external-link-alt ms-1"></i>
+            </a>
+        </div>
+        <div class="card-body">
+            <p class="text-muted small mb-3">
+                Grafik interaktif di bawah ini menunjukkan fluktuasi jumlah anomali harian.
+            </p>
+            
+            <!-- Wadah Iframe Responsif -->
+            <div style="position: relative; padding-top: 65%; overflow: hidden; border-radius: 6px;">
+                <iframe
+                    src="http://localhost:3000/public/question/31d3359a-cc4e-4601-90c3-f8d5d9290832"
+                    frameborder="0"
+                    allowtransparency
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    title="Grafik Tren Anomali Harian"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+                
+<!-- KARTU ANALISIS JENIS ANOMALI -->
+<div class="col-lg-4 mb-4">
+    <div class="chart-card h-100">
+        <div class="chart-header">
+            <h5 class="chart-title">
+                <i class="fas fa-chart-pie text-danger me-2"></i>
+                Analisis Jenis Anomali
+            </h5>
+        </div>
+        <div class="chart-body d-flex flex-column">
+            <!-- Masalah Utama -->
+            <div class="d-flex align-items-center mb-4">
+                <div class="stat-icon bg-danger text-white me-3">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <div class="small text-muted">Masalah Utama</div>
+                    <h6 class="fw-bold mb-0">Clock-out Kosong</h6>
+                    <small class="text-muted">3,242 kasus</small>
+                </div>
+            </div>
+            
+            <h6 class="breakdown-title mb-3">Breakdown Anomali Lainnya</h6>
+            
+            <!-- Bekerja saat OFF -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1 small">
+                    <span class="anomaly-label">Bekerja saat OFF</span>
+                    <span class="case-count">43 kasus</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 82.7%"></div>
+                </div>
+                <small class="text-muted">Aktivitas di hari libur</small>
+            </div>
+
+            <!-- Jam Kerja Sangat Panjang -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-1 small">
+                    <span class="anomaly-label">Jam Kerja Sangat Panjang</span>
+                    <span class="case-count">9 kasus</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 17.3%"></div>
+                </div>
+                <small class="text-muted">Lebih dari 12 jam kerja</small>
+            </div>
+            
+            <!-- ================================== -->
+            <!--   LEGENDA LENGKAP ADA DI SINI      -->
+            <!-- ================================== -->
+            <div class="text-center small mt-auto pt-3 border-top">
+                <span class="me-3">
+                    <i class="fas fa-circle text-danger small"></i> Prioritas Tinggi
+                </span>
+                <span class="me-3">
+                    <i class="fas fa-circle text-warning small"></i> Perlu Monitoring
+                </span>
+                <span>
+                    <i class="fas fa-circle text-info small"></i> Insidental
+                </span>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+            <!-- Analysis Row -->
+            <div class="row fade-in-up">
+                <!-- Overtime Analysis -->
+                <div class="col-lg-6 mb-4">
+                    <div class="chart-card">
+                        <div class="chart-header d-flex justify-content-between align-items-center">
+    <h5 class="chart-title mb-0"> <!-- mb-0 untuk menghilangkan margin bawah default dari h5 -->
+        <i class="fas fa-clock text-warning me-2"></i>
+        Analisis Jam Lembur per Aktivitas
+    </h5>
+    <a href="http://localhost:3000/public/question/22f00fba-3f90-481f-96a1-a81bf75254e8" target="_blank" class="btn btn-outline-secondary btn-sm" title="Buka di tab baru">
+        Lihat Detail <i class="fas fa-external-link-alt ms-1"></i>
+    </a>
+</div>
+                        <div class="chart-body">
+                            <p class="text-muted mb-3">
+                                Distribusi total jam lembur berdasarkan jenis aktivitas. National Holiday menunjukkan kontribusi tertinggi.
+                            </p>
+                          <!-- Wadah Iframe Responsif -->
+            <div style="position: relative; padding-top: 65%; overflow: hidden; border-radius: 6px;">
+                <iframe
+                    src="http://localhost:3000/public/question/22f00fba-3f90-481f-96a1-a81bf75254e8"
+                    frameborder="0"
+                    allowtransparency
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    title="Grafik Tren Anomali Harian"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <!-- Department Analysis -->
+                <div class="col-lg-6 mb-4">
+                    <div class="chart-card">
+                         <div class="chart-header d-flex justify-content-between align-items-center">
+    <h5 class="chart-title mb-0"> <!-- mb-0 untuk menghilangkan margin bawah default dari h5 -->
+        <i class="fas fa-building text-info me-2"></i>
+                                Cost Center dengan Anomali Tertinggi
+                            </h5> <!-- Perbaikan: Menggunakan </h5> sebagai tag penutup -->
+                            <a href="http://localhost:3000/public/question/13baa2e8-c3a8-421b-ac80-13237d6d8801" target="_blank" class="btn btn-outline-secondary btn-sm" title="Buka di tab baru">
+        Lihat Detail <i class="fas fa-external-link-alt ms-1"></i>
+    </a>
+                        </div>
+                        <div class="chart-body">
+                            <p class="text-muted mb-3">
+                                Identifikasi cost center yang memerlukan perhatian khusus berdasarkan jumlah anomali.
+                            </p>
+                              <!-- Wadah Iframe Responsif -->
+            <div style="position: relative; padding-top: 65%; overflow: hidden; border-radius: 6px;">
+                <iframe
+                    src="http://localhost:3000/public/question/13baa2e8-c3a8-421b-ac80-13237d6d8801"
+                    frameborder="0"
+                    allowtransparency
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    title="Grafik Tren Anomali Harian"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- Bottom Analysis Row -->
+            <div class="row fade-in-up">
+                <!-- Top Employees -->
+                <div class="col-lg-6 mb-4">
+                    <div class="chart-card">
+                        <div class="chart-header d-flex justify-content-between align-items-center">
+    <h5 class="chart-title mb-0"> <!-- mb-0 untuk menghilangkan margin bawah default dari h5 -->
+        <i class="fas fa-user-tie text-success me-2"></i>
+                                Karyawan dengan Anomali Tertinggi
+                            </h5> <!-- Perbaikan: Menggunakan </h5> sebagai tag penutup -->
+                                   <a href="http://localhost:3000/public/question/c107a403-ec0f-4a1e-8046-5c4799b7af9d" class="btn btn-outline-secondary btn-sm">
+    Lihat Detail
+    <i class="fas fa-external-link-alt ms-1"></i>
+</a>
+                        </div>
+                        <div class="chart-body">
+                            <p class="text-muted mb-3">
+                                Daftar 10 karyawan dengan catatan anomali tertinggi dalam periode terakhir.
+                            </p>
+                           <!-- Wadah Iframe Responsif -->
+            <div style="position: relative; padding-top: 65%; overflow: hidden; border-radius: 6px;">
+                <iframe
+                    src="http://localhost:3000/public/question/c107a403-ec0f-4a1e-8046-5c4799b7af9d"
+                    frameborder="0"
+                    allowtransparency
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    title="Grafik Tren Anomali Harian"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <!-- Anomaly by Shift -->
+                <div class="col-lg-6 mb-4">
+                    <div class="chart-card">
+                        <div class="chart-header d-flex justify-content-between align-items-center">
+    <h5 class="chart-title mb-0"> <!-- mb-0 untuk menghilangkan margin bawah default dari h5 -->
+        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                Anomali Berdasarkan Shift Kerja
+                            </h5> <!-- Perbaikan: Menggunakan </h5> sebagai tag penutup -->
+                            <a href="http://localhost:3000/public/question/8b2fa867-6874-433b-8ce1-5b3ecf02d72d" class="btn btn-outline-secondary btn-sm">
+    Lihat Detail
+    <i class="fas fa-external-link-alt ms-1"></i>
+</a>
+                        </div>
+                        <div class="chart-body">
+                            <p class="text-muted mb-3">
+                                Perbandingan jumlah anomali yang terdeteksi di setiap shift kerja.
+                            </p>
+                            
+                             <!-- Wadah Iframe Responsif -->
+            <div style="position: relative; padding-top: 65%; overflow: hidden; border-radius: 6px;">
+                <iframe
+                    src="http://localhost:3000/public/question/8b2fa867-6874-433b-8ce1-5b3ecf02d72d"
+                    frameborder="0"
+                    allowtransparency
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    title="Grafik Tren Anomali Harian"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+            </div> <!-- End of first bottom analysis row -->
+
+            <!-- New Analysis Row for additional visualizations -->
+            <div class="row fade-in-up">
+                <!-- New Visual 1: Ringkasan Dashboard Anomali -->
+                <div class="col-lg-6 mb-4">
+                    <div class="chart-card">
+                        <div class="chart-header d-flex justify-content-between align-items-center">
+                            <h5 class="chart-title mb-0">
+                                <i class="fas fa-chart-area text-danger me-2"></i>
+                                Ringkasan Dashboard Anomali
+                            </h5>
+                            <a href="http://localhost:3000/public/dashboard/ace24d9b-721f-414f-91f0-ff277745b62c" target="_blank" class="btn btn-outline-secondary btn-sm" title="Buka di tab baru">
+                                Lihat Detail <i class="fas fa-external-link-alt ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="chart-body">
+                            <p class="text-muted mb-3">
+                                Tinjauan komprehensif metrik dan tren anomali utama dari seluruh sistem.
+                            </p>
+                            <div style="position: relative; padding-top: 65%; overflow: hidden; border-radius: 6px;">
+                                <iframe
+                                    src="http://localhost:3000/public/dashboard/ace24d9b-721f-414f-91f0-ff277745b62c"
+                                    frameborder="0"
+                                    allowtransparency
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                                    title="Ringkasan Dashboard Anomali"
+                                ></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Visual 2: Dashboard Deteksi Anomali Mendalam -->
+                <div class="col-lg-6 mb-4">
+                    <div class="chart-card">
+                        <div class="chart-header d-flex justify-content-between align-items-center">
+                            <h5 class="chart-title mb-0">
+                                <i class="fas fa-chart-bar text-warning me-2"></i>
+                                Dashboard Deteksi Anomali Mendalam
+                            </h5>
+                            <a href="http://localhost:3000/public/dashboard/20332916-064e-48ea-8229-b8be0f750ce9" target="_blank" class="btn btn-outline-secondary btn-sm" title="Buka di tab baru">
+                                Lihat Detail <i class="fas fa-external-link-alt ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="chart-body">
+                            <p class="text-muted mb-3">
+                                Analisis detail anomali yang terdeteksi, memungkinkan investigasi lebih lanjut.
+                            </p>
+                            <div style="position: relative; padding-top: 65%; overflow: hidden; border-radius: 6px;">
+                                <iframe
+                                    src="http://localhost:3000/public/dashboard/20332916-064e-48ea-8229-b8be0f750ce9"
+                                    frameborder="0"
+                                    allowtransparency
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                                    title="Dashboard Deteksi Anomali Mendalam"
+                                ></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End of new analysis row -->
+
+        </div> <!-- End of content -->
+    </div> <!-- End of main-content -->
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const sidebarToggleDesktop = document.getElementById('sidebarToggle'); // Desktop toggle button
+            const sidebarToggleMobile = document.getElementById('sidebarToggleTop'); // Mobile toggle button
+
+            // Function to toggle sidebar for desktop
+            function toggleSidebarDesktop() {
+                sidebar.classList.toggle('hide');
+                mainContent.classList.toggle('expanded');
+            }
+
+            // Function to toggle sidebar for mobile
+            function toggleSidebarMobile() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            }
+
+            // Event listener for desktop toggle button
+            if (sidebarToggleDesktop) {
+                sidebarToggleDesktop.addEventListener('click', toggleSidebarDesktop);
+            }
+
+            // Event listener for mobile toggle button
+            if (sidebarToggleMobile) {
+                sidebarToggleMobile.addEventListener('click', toggleSidebarMobile);
+            }
+
+            // Event listener for sidebar overlay (to close sidebar on mobile)
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show'); // Hide sidebar
+                    sidebarOverlay.classList.remove('show'); // Hide overlay
+                });
+            }
+
+            // Adjust layout based on initial screen size and on resize
+            function adjustLayoutOnResize() {
+                if (window.innerWidth <= 768) {
+                    // On mobile, ensure sidebar is hidden by default and main content is full width
+                    sidebar.classList.remove('hide'); // Remove desktop hide class
+                    sidebar.classList.remove('show'); // Ensure mobile show is off initially
+                    mainContent.classList.remove('expanded'); // Remove desktop expanded class
+                    // mainContent.style.marginLeft = '0px'; // Already handled by CSS for mobile breakpoint
+                    sidebarOverlay.classList.remove('show'); // Ensure overlay is hidden
+                } else {
+                    // On desktop, ensure sidebar is visible by default (unless toggled off) and main content has its margin
+                    sidebar.classList.remove('show'); // Not relevant for desktop, remove if present
+                    sidebar.classList.remove('hide'); // Default to visible on desktop
+                    mainContent.classList.remove('expanded'); // Default to non-expanded on desktop
+                    // mainContent.style.marginLeft = '280px'; // Already handled by CSS for desktop
+                    sidebarOverlay.classList.remove('show'); // Not relevant for desktop
+                }
+            }
+
+            // Set initial layout state
+            adjustLayoutOnResize();
+
+            // Listen for window resize events
+            window.addEventListener('resize', adjustLayoutOnResize);
+        });
+
+        // Chart Data - Trend Anomali per Hari
+        // The CSV data does not provide daily trend information directly.
+        // For demonstration, we'll use placeholder data that might represent a trend.
+        // In a real scenario, you would process the CSV to get daily counts.
+        const trendCtx = document.getElementById('trendChart'); // This element is not present in the HTML, iframes are used instead.
+        if (trendCtx) { // Added a check to prevent errors
+            const trendChart = new Chart(trendCtx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    // Assuming data is from April to May based on CSV snippet
+                    labels: ['Apr 16', 'Apr 17', 'Apr 18', 'Apr 19', 'Apr 20', 'Apr 21', 'Apr 22', 'Apr 23', 'Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', 'Apr 29', 'Apr 30', 'May 1', 'May 2', 'May 3', 'May 4', 'May 5', 'May 6', 'May 7', 'May 8', 'May 9', 'May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15'], 
+                    datasets: [{
+                        label: 'Jumlah Anomali Harian',
+                        // Placeholder data, needs to be calculated from CSV if available
+                        data: [2, 2, 5, 0, 1, 0, 1, 2, 3, 4, 0, 0, 0, 1, 2, 4, 4, 0, 0, 0, 1, 2, 3, 4, 0, 0, 1, 1, 2, 3], 
+                        borderColor: 'rgba(231, 74, 59, 1)',
+                        backgroundColor: 'rgba(231, 74, 59, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    }
+                }
+            });
+        }
+
+
+        // Chart Data - Analisis Jam Lembur per Aktivitas
+        const overtimeCtx = document.getElementById('overtimeChart'); // This element is not present in the HTML, iframes are used instead.
+        if (overtimeCtx) { // Added a check to prevent errors
+            const overtimeChart = new Chart(overtimeCtx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Normal', 'National Holiday', 'Weekend', 'Project', 'Training/Meeting', 'Subtitution', 'Other'],
+                    datasets: [{
+                        label: 'Total Jam Lembur',
+                        // Placeholder data based on general types of overtime
+                        data: [50, 25, 10, 40, 5, 30, 2], 
+                        backgroundColor: [
+                            'rgba(255, 193, 7, 0.7)', // Warning
+                            'rgba(231, 74, 59, 0.7)', // Danger
+                            'rgba(23, 162, 184, 0.7)',  // Info
+                            'rgba(40, 167, 69, 0.7)',  // Success
+                            'rgba(108, 117, 125, 0.7)', // Secondary
+                            'rgba(255, 159, 64, 0.7)', // Orange
+                            'rgba(148, 0, 211, 0.7)'   // Purple
+                        ],
+                        borderColor: [
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(148, 0, 211, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart Data - Cost Center with Highest Anomalies
+        // To populate this accurately, you'd need to count anomalies per cost center from the CSV.
+        const departmentCtx = document.getElementById('departmentChart'); // This element is not present in the HTML, iframes are used instead.
+        if (departmentCtx) { // Added a check to prevent errors
+            const departmentChart = new Chart(departmentCtx.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['C0551', 'G0591', '40590', 'D0590', 'G0590', 'H0590', 'G0592', 'C0590', '10591', '10592', '30590', '50592', '50591', 'V0590', '20591', 'D0593'],
+                    datasets: [{
+                        label: 'Jumlah Anomali',
+                        // Placeholder data, would need aggregation from CSV
+                        data: [15, 20, 10, 5, 15, 5, 10, 5, 5, 5, 5, 5, 5, 10, 5, 5], 
+                        backgroundColor: [
+                            'rgba(231, 74, 59, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(23, 162, 184, 0.8)',
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(108, 117, 125, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                            'rgba(148, 0, 211, 0.8)',
+                            'rgba(55, 71, 79, 0.8)',
+                            'rgba(255, 64, 128, 0.8)',
+                            'rgba(128, 0, 128, 0.8)',
+                            'rgba(0, 128, 0, 0.8)',
+                            'rgba(0, 0, 128, 0.8)',
+                            'rgba(128, 128, 0, 0.8)',
+                            'rgba(0, 255, 255, 0.8)',
+                            'rgba(255, 128, 0, 0.8)',
+                            'rgba(0, 128, 128, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(148, 0, 211, 1)',
+                            'rgba(55, 71, 79, 1)',
+                            'rgba(255, 64, 128, 1)',
+                            'rgba(128, 0, 128, 1)',
+                            'rgba(0, 128, 0, 1)',
+                            'rgba(0, 0, 128, 1)',
+                            'rgba(128, 128, 0, 1)',
+                            'rgba(0, 255, 255, 1)',
+                            'rgba(255, 128, 0, 1)',
+                            'rgba(0, 128, 128, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map(function(label, i) {
+                                            const dataset = data.datasets[0];
+                                            const value = dataset.data[i];
+                                            const color = dataset.backgroundColor[i];
+                                            return {
+                                                text: `${label}: ${value}`,
+                                                fillStyle: color,
+                                                strokeStyle: color,
+                                                fontStyle: 'bold',
+                                                lineWidth: 2
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed + ' anomalies';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart Data - Anomali Berdasarkan Shift Kerja
+        const shiftCtx = document.getElementById('shiftChart'); // This element is not present in the HTML, iframes are used instead.
+        if (shiftCtx) { // Added a check to prevent errors
+            const shiftChart = new Chart(shiftCtx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['AD', 'AS', 'FR', 'MS', 'NS', 'OFF', 'AD', 'FR', 'MS', 'AS', 'NS', 'OFF', 'AD', 'FR', 'OFF', 'MS', 'AS', 'NS', 'OFF', 'MS', 'AS', 'NS', 'OFF', 'AD', 'FR', 'OFF', 'MS', 'AS', 'NS', 'OFF'], // Example shift codes from CSV
+                    datasets: [{
+                        label: 'Jumlah Anomali',
+                        // Placeholder data, would need aggregation from CSV based on shift codes
+                        data: [39, 13, 9, 24, 15, 18, 1, 0, 1, 2, 0, 0, 0, 4, 0, 1, 2, 0, 0, 0, 1, 0, 0, 3, 4, 0, 0, 1, 0, 0], 
+                        backgroundColor: [
+                            'rgba(23, 162, 184, 0.7)', // Info
+                            'rgba(255, 193, 7, 0.7)',  // Warning
+                            'rgba(108, 117, 125, 0.7)', // Secondary
+                            'rgba(231, 74, 59, 0.7)', // Danger
+                            'rgba(40, 167, 69, 0.7)', // Success
+                            'rgba(255, 159, 64, 0.7)', // Orange
+                            'rgba(23, 162, 184, 0.7)', // Info
+                            'rgba(231, 74, 59, 0.7)', // Danger
+                            'rgba(108, 117, 125, 0.7)', // Secondary
+                            'rgba(40, 167, 69, 0.7)', // Success
+                            'rgba(255, 159, 64, 0.7)', // Orange
+                            'rgba(148, 0, 211, 0.7)',   // Purple
+                            'rgba(23, 162, 184, 0.7)', // Info
+                            'rgba(231, 74, 59, 0.7)', // Danger
+                            'rgba(108, 117, 125, 0.7)', // Secondary
+                            'rgba(40, 167, 69, 0.7)', // Success
+                            'rgba(255, 159, 64, 0.7)', // Orange
+                            'rgba(148, 0, 211, 0.7)',   // Purple
+                            'rgba(108, 117, 125, 0.7)', // Secondary
+                            'rgba(40, 167, 69, 0.7)', // Success
+                            'rgba(255, 159, 64, 0.7)', // Orange
+                            'rgba(148, 0, 211, 0.7)',   // Purple
+                            'rgba(55, 71, 79, 0.7)', // Dark Gray
+                            'rgba(23, 162, 184, 0.7)', // Info
+                            'rgba(231, 74, 59, 0.7)', // Danger
+                            'rgba(108, 117, 125, 0.7)', // Secondary
+                            'rgba(40, 167, 69, 0.7)', // Success
+                            'rgba(255, 159, 64, 0.7)', // Orange
+                            'rgba(148, 0, 211, 0.7)',   // Purple
+                            'rgba(55, 71, 79, 0.7)', // Dark Gray
+                        ],
+                        borderColor: [
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(148, 0, 211, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(148, 0, 211, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(148, 0, 211, 1)',
+                            'rgba(55, 71, 79, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(148, 0, 211, 1)',
+                            'rgba(55, 71, 79, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

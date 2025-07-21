@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Ringkasan Detail Anomali Absensi">
+    <meta name="author" content="">
+
+    <title>Ringkasan Anomali - Dashboard</title>
+        <link rel="icon" href="img/LOGO-SBI-BESAR.svg">
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    <!-- CSS Kustom untuk menyesuaikan dengan desain -->
+    <style>
+        .sidebar.sidebar-light .nav-item.active .nav-link {
+            color: #e74a3b;
+            font-weight: 700;
+        }
+        .sidebar.sidebar-light .nav-item.active .nav-link i {
+            color: #e74a3b;
+        }
+        .text-danger {
+            color: #e74a3b !important;
+        }
+        .btn-danger {
+            background-color: #e74a3b;
+            border-color: #e74a3b;
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-light sidebar sidebar-light accordion" id="accordionSidebar">
+            <!-- Sidebar - Brand (dengan penyesuaian posisi) -->
+            <a class="sidebar-brand d-flex align-items-center" href="dashboard.html" style="justify-content: flex-start; padding-left: 1.5rem;">
+                <div class="sidebar-brand-icon">
+                    <img src="img/LOGO-SBI-BESAR.svg" alt="Logo" style="max-height: 40px;">
+                </div>
+            </a>
+            
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+             <li class="nav-item">
+                <a class="nav-link" href="dashboard.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            
+            <!-- Heading -->
+            <div class="sidebar-heading">ANALISIS UTAMA</div>
+            
+            <!-- Nav Item - Ringkasan Anomali (Aktif) -->
+             <li class="nav-item">
+                <a class="nav-link" href="ringkasan_anomali.html">
+                    <i class="fas fa-fw fa-exclamation-triangle"></i>
+                    <span>Ringkasan Anomali</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Detail Data -->
+            <li class="nav-item">
+                <a class="nav-link" href="detail_data.html"><i class="fas fa-fw fa-table"></i><span>Detail Data</span></a>
+            </li>
+            
+            <!-- Nav Item - Upload Data -->
+            <li class="nav-item active">
+                <a class="nav-link" href="Upload Data Bulanan.html"><i class="fas fa-fw fa-cloud-upload-alt"></i><span>Upload Data Bulanan</span></a>
+            </li>
+            
+            <!-- Nav Item - Laporan Analisis -->
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-fw fa-chart-line"></i><span>Laporan Analisis</span></a>
+            </li>
+            
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            
+            <div class="sidebar-heading">PENGATURAN</div>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-fw fa-cogs"></i><span>Aturan & Model</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-fw fa-bell"></i><span>Notifikasi</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-fw fa-users"></i><span>Manajemen User</span></a></li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">BANTUAN</div>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-fw fa-book"></i><span>Dokumentasi</span></a></li>
+            
+            <div class="text-center d-none d-md-inline mt-4">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm">
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button">
+                                <i class="fas fa-bell fa-fw"></i><span class="badge badge-danger badge-counter">3+</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button">
+                                <i class="fas fa-envelope fa-fw"></i><span class="badge badge-danger badge-counter">7</span>
+                            </a>
+                        </li>
+                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">George Russell</span>
+                                <img class="img-profile rounded-circle" src="img/suami.jpg">
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Container Halaman -->
+                <div class="container-fluid">
+                    <!-- Judul Halaman -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800 font-weight-bold"><i class="fas fa-cloud-upload-alt text-danger mr-2"></i>Upload Data Absensi Bulanan</h1>
+                    </div>
+
+                    <!-- Kartu Upload -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-danger">Formulir Upload File</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <p>Silakan pilih file data absensi bulanan dalam format Excel (.xlsx) atau CSV (.csv). Sistem akan secara otomatis memproses file dan menganalisis anomali yang ada.</p>
+                                    
+                                    <form id="uploadForm">
+                                        <!-- Input Pilih Bulan & Tahun -->
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputBulan">Periode Bulan</label>
+                                                <select id="inputBulan" class="form-control" required>
+                                                    <option selected disabled value="">Pilih Bulan...</option>
+                                                    <option value="1">Januari</option>
+                                                    <option value="2">Februari</option>
+                                                    <option value="3">Maret</option>
+                                                    <option value="4">April</option>
+                                                    <option value="5">Mei</option>
+                                                    <option value="6">Juni</option>
+                                                    <option value="7">Juli</option>
+                                                    <option value="8">Agustus</option>
+                                                    <option value="9">September</option>
+                                                    <option value="10">Oktober</option>
+                                                    <option value="11">November</option>
+                                                    <option value="12">Desember</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputTahun">Periode Tahun</label>
+                                                <input type="number" class="form-control" id="inputTahun" placeholder="Contoh: 2025" required min="2020" max="2099">
+                                            </div>
+                                        </div>
+
+                                        <!-- Input File -->
+                                        <div class="form-group">
+                                            <label for="fileUpload">Pilih File Absensi</label>
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" id="fileUpload" accept=".xlsx, .xls, .csv" required>
+                                                <label class="custom-file-label" for="fileUpload">Pilih file...</label>
+                                            </div>
+                                            <small class="form-text text-muted">Format yang didukung: .xlsx, .xls, .csv. Ukuran maksimal: 10 MB.</small>
+                                        </div>
+
+                                        <!-- Tombol Submit -->
+                                        <button type="submit" class="btn btn-danger btn-icon-split mt-3">
+                                            <span class="icon text-white-50">
+                                                <i class="fas fa-upload"></i>
+                                            </span>
+                                            <span class="text">Upload dan Proses Data</span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Progress Bar (muncul saat upload) -->
+                                    <div class="progress mt-4" style="display: none;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div id="uploadStatus" class="mt-2 small"></div>
+
+                                </div>
+                                <div class="col-lg-4 d-none d-lg-block text-center">
+                                    <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 20rem;" src="img/undraw_add_files_re_v09g.svg" alt="Upload Illustration">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Container Halaman -->
+            </div>
+            <!-- End Main Content -->
+            
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto"><span>Copyright © Anomaly Detector 2025</span></div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="js/sb-admin-2.min.js"></script>
+
+    <!-- Skrip Kustom untuk Halaman Ini -->
+    <script>
+        $(document).ready(function() {
+            // Menampilkan nama file yang dipilih di label
+            $('#fileUpload').on('change',function(){
+                var fileName = $(this).val().split('\\').pop();
+                if(fileName) {
+                    $(this).next('.custom-file-label').html(fileName);
+                } else {
+                    $(this).next('.custom-file-label').html('Pilih file...');
+                }
+            });
+
+            // Simulasi proses upload
+            $('#uploadForm').on('submit', function(e){
+                e.preventDefault(); // Mencegah form submit default
+
+                var progressBar = $('.progress-bar');
+                var progressContainer = $('.progress');
+                var uploadStatus = $('#uploadStatus');
+                var submitButton = $(this).find('button[type="submit"]');
+
+                // Menonaktifkan tombol dan memulai proses
+                submitButton.prop('disabled', true).find('.text').text('Memproses...');
+                
+                // Reset dan tampilkan progress bar
+                progressContainer.show();
+                progressBar.width('0%').attr('aria-valuenow', 0).removeClass('bg-success').addClass('bg-danger');
+                uploadStatus.html('Mengunggah file...');
+
+                // Simulasi peningkatan progress
+                var width = 0;
+                var interval = setInterval(function() {
+                    width += 10;
+                    progressBar.width(width + '%').attr('aria-valuenow', width);
+
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        progressBar.removeClass('bg-danger').addClass('bg-success'); // Ganti warna jadi hijau saat selesai
+                        uploadStatus.html('<strong class="text-success">Upload berhasil!</strong> Menganalisis data...');
+                        
+                        // Simulasi analisis dan redirect
+                        setTimeout(function() {
+                            alert('Analisis data selesai! Anda akan diarahkan ke halaman ringkasan.');
+                            window.location.href = 'ringkasan_anomali.html'; // Arahkan ke halaman ringkasan
+                        }, 2000);
+                    }
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

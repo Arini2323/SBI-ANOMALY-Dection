@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Dashboard Analisis Anomali Absensi - Enhanced Version">
+    <meta name="author" content="">
+    <title>Impor Data Absensi - Anomali Kehadiran</title> 
+    <link rel="icon" href="img/LOGO-SBI-BESAR.svg">
+    
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js (Dibiarkan untuk konsistensi, meskipun tidak digunakan langsung di halaman ini) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        /*
+        * Perhatian: Seluruh blok CSS ini disalin langsung dari dashboard.html
+        * untuk memastikan konsistensi tampilan sidebar dan topbar.
+        */
+        :root {
+            --primary-color: #e74a3b;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fc;
+            --dark-text: #2c3e50;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --gradient-primary: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+            --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+            border-right: 1px solid #e3e6f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease; /* Hanya transisi untuk transform */
+            box-shadow: var(--shadow);
+            transform: translateX(0); /* Default: sidebar terlihat di desktop */
+        }
+
+        .sidebar.hide { /* Kelas untuk menyembunyikan sidebar di desktop */
+            transform: translateX(-100%);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            background: white;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+            background: linear-gradient(90deg, rgba(231, 74, 59, 0.1) 0%, transparent 100%);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px; /* Default: selalu ada margin untuk sidebar di desktop */
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded { /* Kelas untuk konten utama saat sidebar disembunyikan di desktop */
+            margin-left: 0;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: 2rem;
+            margin: auto 1rem;
+        }
+
+        .badge-counter {
+            font-size: 0.6rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link.dropdown-toggle {
+            position: relative;
+            padding: 0.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-link.dropdown-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .img-profile {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Styling for the notification icons inside the dropdown */
+        .dropdown-menu .icon-circle {
+            width: 40px; /* Set a fixed width */
+            height: 40px; /* Set a fixed height (same as width for a perfect circle) */
+            border-radius: 50%; /* Make it perfectly circular */
+            display: flex; /* Use flexbox to center the icon inside */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            font-size: 1.2rem; /* Adjust icon size inside the circle */
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            margin: 0;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title .subtitle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Ini adalah gaya spesifik untuk halaman impor data, tetapi disisakan untuk konteks */
+        .file-drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+        .file-drop-area:hover {
+            border-color: var(--primary-color);
+        }
+        .file-drop-area .file-input {
+            display: none;
+        }
+        .file-drop-area .file-msg {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+        .file-drop-area i {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 3rem;
+        }
+        #file-name-display {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%); /* Sidebar tersembunyi secara default di mobile */
+                position: fixed; /* Penting agar sidebar bisa melayang di atas konten */
+                z-index: 1001; /* Pastikan di atas overlay */
+            }
+
+            .sidebar.show { /* Kelas untuk menampilkan sidebar di mobile */
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0; /* Main content selalu full width di mobile */
+            }
+            
+            /* Overlay for mobile */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar (Disalin dari dashboard.html) -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <img src="img/LOGO-SBI-BESAR.svg" alt="SBI Logo" style="height: 40px; width: auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="d-none align-items-center justify-content-center" style="width: 40px; height: 40px; background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%); border-radius: 8px;">
+                        <i class="fas fa-chart-line text-white" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Beranda -->
+            <div class="nav-section">
+                <div class="nav-section-title">Beranda</div>
+                <div class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analisis Data -->
+            <div class="nav-section">
+                <div class="nav-section-title">Analisis Data</div>
+                <div class="nav-item">
+                    <a href="impordataabsensi.html" class="nav-link active"> <!-- Kelas 'active' dipindahkan ke sini -->
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Impor Data Absensi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="ringkasan.html" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Ringkasan Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="detaildata.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Detail Anomali</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="Analisi.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Laporan Analisis</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pengaturan (Disamakan dengan dashboard.html) -->
+            <div class="nav-section">
+                <div class="nav-section-title">Pengaturan</div>
+                <div class="nav-item">
+                    <a href="notifikasi.html" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifikasi</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="manajemen_pengguna.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Manajemen Pengguna</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bantuan (Disalin dari dashboard.html) -->
+            <div class="nav-section">
+                <div class="nav-section-title">Bantuan</div>
+                <div class="nav-item">
+                    <a href="dokumentasi.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Dokumentasi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+          <!-- Topbar (Disalin dari dashboard.html) -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm">
+            <!-- Sidebar Toggle (Topbar) -->
+            <!-- Tombol untuk mobile -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+            <!-- Tombol untuk desktop -->
+            <button id="sidebarToggle" class="btn btn-link d-none d-md-block rounded-circle me-3 text-secondary">
+                <i class="fa fa-bars"></i>
+            </button>
+  <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Nav Item - Alerts -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw"></i>
+                        <!-- Counter - Alerts -->
+                        <span class="badge rounded-pill badge-counter bg-danger">3+</span>
+                    </a>
+                    <!-- Dropdown - Alerts -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="alertsDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifikasi
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-danger">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">12 Desember 2024</div>
+                                <span class="font-weight-bold">Anomali tinggi terdeteksi di Departemen IT!</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">11 Desember 2024</div>
+                                Keterlambatan massal terdeteksi hari ini
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
+                    </div>
+                </li>
+
+                <!-- Nav Item - Messages -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-envelope fa-fw"></i>
+                        <!-- Counter - Messages -->
+                        <span class="badge rounded-pill badge-counter bg-danger">7</span>
+                    </a>
+                    <!-- Dropdown - Messages -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="messagesDropdown">
+                        <h6 class="dropdown-header">
+                            <i class="fas fa-envelope me-2"></i>
+                            Pesan
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Emily Johnson · 58m</div>
+                                <span class="font-weight-bold">Laporan analisis sudah siap untuk direview...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <!-- Tidak ada gambar profil di dashboard.html, jadi dihapus di sini -->
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">Jae Chun · 1d</div>
+                                <span class="font-weight-bold">Mohon konfirmasi untuk setting notifikasi...</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                    </div>
+                </li>
+
+                <div class="topbar-divider d-none d-sm-block"></div>
+
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">George Russell</span>
+                        <img class="img-profile rounded-circle" src="img/suami.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/40'">
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                         aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="profil.html">
+                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
+                            Profil Saya
+                        </a>
+                        <a class="dropdown-item" href="pengaturan.html">
+                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
+                            Pengaturan
+                        </a>
+                        <a class="dropdown-item" href="riwayat_aktivitas.html">
+                            <i class="fas fa-history fa-sm fa-fw me-2 text-gray-400"></i>
+                            Riwayat Aktivitas
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                            Keluar
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+    <div class="content">
+        <!-- Judul Halaman -->
+        <div class="page-title mb-4 fade-in-up">
+            <h1><i class="fas fa-cloud-upload-alt text-danger me-2"></i>Impor Data Absensi</h1>
+            <p class="subtitle">Unggah file absensi karyawan dalam format <strong>.csv</strong> atau <strong>.xlsx</strong> untuk dianalisis oleh sistem.</p>
+        </div>
+
+        <div class="row">
+            <!-- Kolom Form Impor -->
+            <div class="col-lg-7 mb-4">
+                <div class="card fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="card-header py-3"><h5 class="m-0"><i class="fas fa-file-import me-2"></i>Unggah File Baru</h5></div>
+                    <div class="card-body p-4 p-md-5">
+                        <form id="importForm">
+                            <div id="alert-container"></div>
+                            <div class="file-drop-area mb-3">
+                                <i class="fas fa-file-excel fa-2x text-success me-2"></i>
+                                <i class="fas fa-file-csv fa-2x text-secondary"></i>
+                                <span class="file-msg mt-3">Klik untuk memilih file CSV atau Excel</span>
+                                <input class="file-input" type="file" id="dataFile" accept=".csv, .xls, .xlsx">
+                            </div>
+                            <div id="file-name-display" class="mb-3 text-center text-muted fst-italic"></div>
+                            <div id="upload-progress" class="mt-3" style="display: none;">
+                                <div class="progress"><div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" style="width: 0%;">0%</div></div>
+                                <p class="text-center mt-2 small text-muted" id="progress-message"></p>
+                            </div>
+                            <div class="d-grid mt-4">
+                               <button type="submit" id="submitBtn" class="btn btn-primary btn-lg"><i class="fas fa-cogs me-2"></i>Proses & Impor Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Riwayat & Panduan -->
+            <div class="col-lg-5 mb-4">
+                <div class="card h-100 fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="card-header py-3"><h6 class="m-0"><i class="fas fa-history me-2"></i>Riwayat Impor Terakhir</h6></div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead><tr class="small text-uppercase"><th scope="col">Tanggal</th><th scope="col">File</th><th scope="col">Status</th><th scope="col">Aksi</th></tr></thead>
+                                <tbody id="historyTableBody">
+                                    <!-- Isi riwayat akan dimuat di sini oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kartu Panduan -->
+        <div class="row fade-in-up" style="animation-delay: 0.3s;">
+             <div class="col-12">
+                <div class="card">
+                    <div class="card-header py-3"><h6 class="m-0"><i class="fas fa-info-circle me-2"></i>Panduan & Template</h6></div>
+                    <div class="card-body small d-md-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-2">Sistem menerima file <strong>CSV</strong> dan <strong>Excel (.xls, .xlsx)</strong>. Pastikan struktur kolom sesuai dengan template.</p>
+                            <strong>Kolom Wajib:</strong> <code>persno</code>, <code>perioddate</code>, <code>clockin</code>, <code>clockout</code>, <code>shiftcode</code>.
+                        </div>
+                        <div class="mt-3 mt-md-0">
+                            <a href="path/to/template.csv" download class="btn btn-outline-secondary btn-sm me-2"><i class="fas fa-file-csv me-1"></i>Template CSV</a>
+                            <a href="path/to/template.xlsx" download class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>Template Excel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // JavaScript function for logout (Disalin dari dashboard.html)
+    function logout() {
+        if (confirm("Apakah Anda yakin ingin keluar?")) {
+            console.log("User logged out. Redirecting to login page...");
+            window.location.href = 'login.html'; 
+        }
+    }
+
+    // JavaScript for Sidebar Toggle (Disalin dari dashboard.html)
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarToggleDesktop = document.getElementById('sidebarToggle'); // Desktop toggle button
+        const sidebarToggleMobile = document.getElementById('sidebarToggleTop'); // Mobile toggle button
+
+        // Function to toggle sidebar for desktop
+        function toggleSidebarDesktop() {
+            sidebar.classList.toggle('hide');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Function to toggle sidebar for mobile
+        function toggleSidebarMobile() {
+            sidebar.classList.toggle('show');
+            sidebarOverlay.classList.toggle('show');
+        }
+
+        // Event listener for desktop toggle button
+        if (sidebarToggleDesktop) {
+            sidebarToggleDesktop.addEventListener('click', toggleSidebarDesktop);
+        }
+
+        // Event listener for mobile toggle button
+        if (sidebarToggleMobile) {
+            sidebarToggleMobile.addEventListener('click', toggleSidebarMobile);
+        }
+
+        // Event listener for sidebar overlay (to close sidebar on mobile)
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show'); // Hide sidebar
+                sidebarOverlay.classList.remove('show'); // Hide overlay
+            });
+        }
+
+        // Adjust layout based on initial screen size and on resize
+        function adjustLayoutOnResize() {
+            if (window.innerWidth <= 768) {
+                // On mobile, ensure sidebar is hidden by default and main content is full width
+                sidebar.classList.remove('hide'); // Remove desktop hide class
+                sidebar.classList.remove('show'); // Ensure mobile show is off initially
+                mainContent.classList.remove('expanded'); // Remove desktop expanded class
+                sidebarOverlay.classList.remove('show'); // Ensure overlay is hidden
+            } else {
+                // On desktop, ensure sidebar is visible by default (unless toggled off) and main content has its margin
+                sidebar.classList.remove('show'); // Not relevant for desktop, remove if present
+                // sidebar.classList.remove('hide'); // Default to visible on desktop, unless user toggled it
+                // mainContent.classList.remove('expanded'); // Default to non-expanded on desktop, unless user toggled it
+                sidebarOverlay.classList.remove('show'); // Not relevant for desktop
+            }
+        }
+
+        // Set initial layout state
+        adjustLayoutOnResize();
+
+        // Listen for window resize events
+        window.addEventListener('resize', adjustLayoutOnResize);
+    });
+
+    // JavaScript untuk Fitur Impor Data Absensi dan Riwayat Impor
+    const dropArea = document.querySelector(".file-drop-area");
+    const fileInput = document.querySelector("#dataFile");
+    const fileNameDisplay = document.querySelector("#file-name-display");
+    const importForm = document.querySelector("#importForm");
+    const submitBtn = document.querySelector("#submitBtn");
+    const progressContainer = document.querySelector("#upload-progress");
+    const progressBar = progressContainer.querySelector(".progress-bar");
+    const progressMessage = document.querySelector("#progress-message");
+    const alertContainer = document.querySelector("#alert-container");
+    const historyTableBody = document.getElementById('historyTableBody'); // Element tbody untuk riwayat
+    const MAX_HISTORY_ITEMS = 5; // Batasi jumlah riwayat yang ditampilkan/disimpan
+
+    const allowedExtensions = /(\.csv|\.xls|\.xlsx)$/i;
+
+    const showAlert = (message, type = 'danger') => {
+        alertContainer.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+    };
+
+    function handleFile(file) {
+        if (file && allowedExtensions.exec(file.name)) {
+            fileNameDisplay.innerHTML = `File terpilih: <strong>${file.name}</strong>`;
+            alertContainer.innerHTML = ''; // Clear error message if any
+        } else if (file) {
+            showAlert('Format file tidak valid. Harap unggah file .csv, .xls, atau .xlsx.');
+            fileInput.value = ''; // Reset file input
+            fileNameDisplay.innerHTML = "";
+        }
+    }
+
+    // Hanya menggunakan klik untuk memilih file
+    if (dropArea) {
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+    }
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
+    });
+
+    // --- Fungsi untuk Mengelola Riwayat Impor (Baru) ---
+    function getImportHistory() {
+        try {
+            const history = JSON.parse(localStorage.getItem('importHistory')) || [];
+            return history;
+        } catch (e) {
+            console.error("Error parsing import history from localStorage:", e);
+            return []; // Return empty array on error
+        }
+    }
+
+    function saveImportHistory(history) {
+        localStorage.setItem('importHistory', JSON.stringify(history));
+    }
+
+    function addImportEntry(filename, status, fileType) {
+        const history = getImportHistory();
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = now.toLocaleDateString('id-ID', options); // Format tanggal Indonesia
+
+        history.unshift({ // Tambahkan ke awal array (terbaru di atas)
+            date: formattedDate,
+            filename: filename,
+            status: status,
+            fileType: fileType // Simpan tipe file
+        });
+
+        // Batasi jumlah entri dalam riwayat
+        if (history.length > MAX_HISTORY_ITEMS) {
+            history.pop(); // Hapus entri terlama jika melebihi batas
+        }
+        saveImportHistory(history);
+        renderImportHistory(); // Perbarui tampilan tabel riwayat
+    }
+
+    function renderImportHistory() {
+        const history = getImportHistory();
+        historyTableBody.innerHTML = ''; // Bersihkan baris yang ada
+
+        if (history.length === 0) {
+            historyTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Belum ada riwayat impor.</td></tr>';
+            return;
+        }
+
+        history.forEach((entry, index) => {
+            const row = historyTableBody.insertRow();
+            const statusClass = entry.status === 'Berhasil' ? 'bg-success' : 'bg-danger';
+
+            row.insertCell(0).innerText = entry.date;
+            row.insertCell(1).innerText = entry.filename;
+            row.insertCell(2).innerHTML = `<span class="badge ${statusClass}">${entry.status}</span>`;
+            
+            // Tambahkan kolom Aksi
+            const actionCell = row.insertCell(3);
+            if (entry.status === 'Berhasil') {
+                actionCell.innerHTML = `<button class="btn btn-sm btn-outline-primary" data-index="${index}" onclick="downloadFileFromHistory(${index})"><i class="fas fa-download me-1"></i>Unduh</button>`;
+            } else {
+                actionCell.innerHTML = `<button class="btn btn-sm btn-outline-secondary" disabled title="File gagal diproses, tidak bisa diunduh."><i class="fas fa-download me-1"></i>Unduh</button>`;
+            }
+        });
+    }
+
+    // Fungsi untuk mensimulasikan unduhan file dari riwayat
+    function downloadFileFromHistory(index) {
+        const history = getImportHistory();
+        const entry = history[index];
+
+        if (!entry) {
+            showAlert('Entri riwayat tidak ditemukan.', 'warning');
+            return;
+        }
+
+        let fileContent = '';
+        let mimeType = '';
+        let filename = entry.filename;
+
+        if (entry.fileType.includes('csv')) {
+            fileContent = 'id,nama,nilai\n1,Contoh,100\n2,Data,90\n3,Simulasi,80'; // Contoh data CSV dummy
+            mimeType = 'text/csv';
+        } else if (entry.fileType.includes('xls') || entry.fileType.includes('xlsx')) {
+            // Untuk Excel, kita tidak bisa dengan mudah membuat file biner di frontend.
+            // Pilihan terbaik adalah mengarahkan ke template atau memberitahu pengguna.
+            // Di sini kita akan membuat file teks dengan ekstensi xlsx dan pesan.
+            fileContent = 'Ini adalah file Excel simulasi. File Excel asli tidak dapat diunduh dari riwayat di demo ini.';
+            mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; // MIME type untuk .xlsx
+            // Catatan: Ini akan mengunduh file .xlsx yang berisi teks, BUKAN file Excel yang sebenarnya.
+            // Untuk file Excel asli, diperlukan library JS kompleks (misalnya SheetJS) atau backend.
+            showAlert('Pengunduhan file Excel disimulasikan. File Excel asli tidak disimpan di ri frontend ini.', 'info');
+        } else {
+            showAlert('Tipe file tidak didukung untuk pengunduhan simulasi.', 'warning');
+            return;
+        }
+
+        const blob = new Blob([fileContent], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename; // Gunakan nama file asli
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url); // Bersihkan URL objek
+    }
+    // --- Akhir Fungsi Riwayat Impor ---
+
+
+    // Modified submit handler to use fetch for actual (simulated) file upload
+    importForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const file = fileInput.files[0];
+
+        if (!file) {
+            showAlert('Silakan pilih file terlebih dahulu.');
+            return;
+        }
+        if (!allowedExtensions.exec(file.name)) {
+            showAlert('Format file tidak valid. Harap unggah file .csv, .xls, atau .xlsx.');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Mengunggah...`;
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressBar.innerText = '0%';
+        progressBar.classList.replace('bg-success', 'bg-danger');
+        progressMessage.innerText = 'Memulai unggahan...';
+        alertContainer.innerHTML = '';
+
+        let currentProgress = 0;
+        let uploadProgressInterval;
+
+        // Simulate initial upload progress up to 90%
+        uploadProgressInterval = setInterval(() => {
+            currentProgress = Math.min(currentProgress + Math.floor(Math.random() * 5) + 5, 90); 
+            progressBar.style.width = currentProgress + '%';
+            progressBar.innerText = currentProgress + '%';
+            if (currentProgress >= 90) {
+                clearInterval(uploadProgressInterval);
+                progressMessage.innerText = 'File terunggah, menunggu pemrosesan server...';
+            }
+        }, 200); // Update every 200ms
+
+        try {
+            // Create FormData object to send the file (for real backend integration)
+            const formData = new FormData();
+            formData.append('dataFile', file); // 'dataFile' is the name your backend will expect for the file
+
+            // *** PENTING: Ganti URL ini dengan URL ENDPOINT API BACKEND ANDA YANG SEBENARNYA ***
+            const backendUrl = 'YOUR_BACKEND_UPLOAD_URL'; 
+
+            // --- SIMULATED FETCH REQUEST (JANGAN HAPUS KOMENTAR INI JIKA ANDA TIDAK MEMILIKI BACKEND NYATA) ---
+            const simulatedResponse = await new Promise(resolve => setTimeout(() => {
+                // Simulate success or failure (e.g., 90% chance of success)
+                const simulateSuccess = Math.random() > 0.1; 
+                if (simulateSuccess) {
+                    resolve({
+                        ok: true, // Simulate HTTP status 200-299
+                        json: () => Promise.resolve({ // Simulate JSON response from backend
+                            status: 'success',
+                            message: `Impor berhasil! <strong>${Math.floor(Math.random() * (2000 - 1000 + 1) + 1000).toLocaleString()} baris</strong> data telah ditambahkan ke antrean analisis.`,
+                            rows_processed: Math.floor(Math.random() * (2000 - 1000 + 1) + 1000)
+                        })
+                    });
+                } else {
+                    resolve({
+                        ok: false,
+                        status: 500, 
+                        json: () => Promise.resolve({
+                            status: 'error',
+                            message: 'Gagal mengimpor data: Terjadi kesalahan pada server. Pastikan format file benar atau coba lagi nanti.'
+                        })
+                    });
+                }
+            }, 2000)); 
+
+            // Gunakan respons simulasi untuk update UI (ganti dengan 'response' jika menggunakan fetch nyata)
+            const response = simulatedResponse; 
+
+            clearInterval(uploadProgressInterval); // Hentikan simulasi upload yang tersisa
+
+            if (response.ok) {
+                const result = await response.json();
+                progressBar.style.width = '100%';
+                progressBar.innerText = '100%';
+                progressBar.classList.replace('bg-danger', 'bg-success');
+                progressMessage.innerText = 'Analisis data selesai!';
+                showAlert(result.message, 'success');
+                // Tambahkan ke riwayat saat berhasil, sertakan tipe file
+                addImportEntry(file.name, 'Berhasil', file.type || file.name.split('.').pop()); 
+            } else {
+                const errorResult = await response.json();
+                progressBar.style.width = '100%';
+                progressBar.innerText = 'Gagal!';
+                progressBar.classList.replace('bg-success', 'bg-danger');
+                progressMessage.innerText = 'Terjadi kesalahan saat memproses data.';
+                showAlert(errorResult.message || 'Terjadi kesalahan tidak diketahui.', 'danger');
+                // Tambahkan ke riwayat juga saat gagal, sertakan tipe file
+                addImportEntry(file.name, 'Gagal', file.type || file.name.split('.').pop()); 
+            }
+
+        } catch (error) {
+            clearInterval(uploadProgressInterval); // Hentikan interval pada kesalahan jaringan/lainnya
+            console.error('Error during file upload:', error);
+            progressBar.style.width = '100%';
+            progressBar.innerText = 'Gagal!';
+            progressBar.classList.replace('bg-success', 'bg-danger');
+            progressMessage.innerText = 'Kesalahan jaringan atau server tidak merespons.';
+            showAlert('Gagal terhubung ke server. Periksa koneksi internet Anda atau coba lagi nanti.', 'danger');
+            // Tambahkan ke riwayat jika ada kesalahan lain, sertakan tipe file
+            addImportEntry(file.name, 'Gagal', file.type || file.name.split('.').pop()); 
+        } finally {
+            // Pastikan tombol diaktifkan kembali dan form direset setelah jeda singkat
+            setTimeout(() => {
+                resetForm();
+            }, 1000); // Beri pengguna waktu sejenak untuk melihat status akhir
+        }
+    });
+    
+    function resetForm() {
+        importForm.reset();
+        fileNameDisplay.innerHTML = "";
+        progressContainer.style.display = 'none';
+        progressBar.style.width = '0%';
+        progressBar.innerText = '0%';
+        progressBar.classList.replace('bg-success', 'bg-danger');
+        progressMessage.innerText = '';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-cogs me-2"></i>Proses & Impor Data';
+    }
+
+    // Panggil renderImportHistory saat DOM selesai dimuat untuk menampilkan riwayat yang tersimpan
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... (kode sidebar toggle yang sudah ada) ...
+        renderImportHistory(); // Panggil ini setelah kode sidebar toggle
+    });
+</script>
+
+</body>
+</html>
+
